@@ -29,32 +29,25 @@
 ## Installation
 
 ```bash
-$ npm i -g @nestjs/cli          при створені першого проекту
-$ nest new project-name         створення нового проекту на nest project-name це назва проекту
-$ npm install
+npm i @nestjs/config
+npm i openai
+npm i nestjs-telegraf
+npm i telegraf
 
-додати в package.json в dependencies 
-для сортування імпортів
-"eslint-plugin-import": "^2.27.5",
-"eslint-plugin-simple-import-sort": "^10.0.0",
-
-Альтернатива
-
-$ git clone https://github.com/nestjs/typescript-starter.git project
-$ cd project
-$ npm install
-$ npm run start
-
-клонувати репозиторій без історії git, використовувати degit
+або можна написати все за раз
+npm i @nestjs/config openai nestjs-telegraf telegraf
 ```
 
-## Nest CLI
+## Settings
 ```bash
-$ nest --help                       перегляд доступних команд
-$ nest generate --help              довідка про певну команду
-$ nest generate controller name     створить контролер з назвою name 
+GPT_API беремо з сайту openai
+TELEGRAM_API в телеграмі в пошуку Botfather 
+в каналі команда /newbot
 
-завжди створюють controller, module, service, а spec видаляють
+Створюємо модулі і сервіси
+nest g mo chatgpt && nest g s chatgpt --no-spec && nest g mo telegram && nest g s telegram 
+--no-spec
+                  як нова команда      не ств файл spec
 ```
 ## Running the app
 
