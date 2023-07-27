@@ -1,23 +1,28 @@
-## Installation
+## Docker DB connection
 
 ```bash
-$ npm i -g @nestjs/cli          при створені першого проекту
-$ nest new project-name         створення нового проекту на nest project-name це назва проекту
-$ npm install
+create file - docker-compose.db.yml
+----
+version: '3.9'
 
-додати в package.json в dependencies 
-для сортування імпортів
-"eslint-plugin-import": "^2.27.5",
-"eslint-plugin-simple-import-sort": "^10.0.0",
+services:
+  nest-help-postgres:
+#    postgis can work with geolocation
+    image: postgis/postgis
+    ports:
+      - '${POSTGRES_EXTERNAL_PORT:-5432}:5432'
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: nest-help
+    volumes:
+      - nest-help-db:/var/lib/postgresql/nest-help
 
-Альтернатива
+volumes:
+  nest-help-db:
+----
 
-$ git clone https://github.com/nestjs/typescript-starter.git project
-$ cd project
-$ npm install
-$ npm run start
-
-клонувати репозиторій без історії git, використовувати degit
+add script - "start:db": "sudo docker compose -f docker-compose.db.yml up",
 ```
 
 ## Nest CLI
