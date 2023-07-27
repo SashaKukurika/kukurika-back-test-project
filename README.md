@@ -28,28 +28,31 @@ $ nest generate controller name     створить контролер з на�
 
 завжди створюють controller, module, service, а spec видаляють
 ```
-## Running the app
+## Validation
 
 ```bash
-# development
-$ npm run start
+# install
+$ npm i --save class-validator class-transformer
 
-# watch mode
-$ npm run start:dev
+# add to main.ts
+app.useGlobalPipes(new ValidationPipe());
 
 # production mode
 $ npm run start:prod
 ```
 
-## Test
+## Swagger
 
 ```bash
-# unit tests
-$ npm run test
+# Swagger
+# to watch http://localhost:3000/api#/
+$ npm install --save @nestjs/swagger
+```
+## Command for module
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+```bash
+# create all for resource
+# don't forget to add async before all methods
+# and constructor at service
+$ nest g resource users --no-spec
 ```
