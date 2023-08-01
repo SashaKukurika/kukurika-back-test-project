@@ -1,6 +1,8 @@
 ## Docker DB connection
 
 ```bash
+check all file that was commited like db connection
+
 create file - docker-compose.db.yml
 ----
 version: '3.9'
@@ -23,6 +25,11 @@ volumes:
 ----
 
 add script - "start:db": "sudo docker compose -f docker-compose.db.yml up",
+
+npm i pg -save
+
+npm run start:db
+after npm run start:dev
 ```
 
 ## Nest CLI
