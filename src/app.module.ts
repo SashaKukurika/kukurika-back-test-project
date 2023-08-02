@@ -6,18 +6,18 @@ import { AnimalsModule } from './animals/animals.module';
 import { AnimalsService } from './animals/animals.service';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
 import { TypeOrmConfiguration } from './config/database/type-orm-configuration';
-import { UsersController } from './users/users.controller';
 import { UsersModule } from './users/users.module';
-import { UsersService } from './users/users.service';
 
 @Module({
   imports: [
     TypeOrmModule.forRootAsync(TypeOrmConfiguration.config),
     UsersModule,
     AnimalsModule,
+    AuthModule,
   ],
-  controllers: [AppController, UsersController, AnimalsController],
-  providers: [AppService, UsersService, AnimalsService],
+  controllers: [AppController, AnimalsController],
+  providers: [AppService, AnimalsService],
 })
 export class AppModule {}

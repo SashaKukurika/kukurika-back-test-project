@@ -6,7 +6,9 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { ApiTags } from '@nestjs/swagger';
 
 import { UserCreateDto } from './dto/create-user.dto';
@@ -21,10 +23,11 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  async create(@Body() userCreateDto: UserCreateDto) {
-    return this.usersService.create(userCreateDto);
+  async create(@Body() data: UserCreateDto) {
+    return this.usersService.createUser(data);
   }
 
+  @UseGuards(AuthGuard('bearer'))
   @Get()
   async findAll() {
     return this.usersService.findAll();

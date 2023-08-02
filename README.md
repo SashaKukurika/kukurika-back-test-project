@@ -1,35 +1,49 @@
-## Docker DB connection
+## DB configuration
 
 ```bash
-check all file that was commited like db connection
-
-create file - docker-compose.db.yml
+create entity
 ----
-version: '3.9'
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-services:
-  nest-help-postgres:
-#    postgis can work with geolocation
-    image: postgis/postgis
-    ports:
-      - '${POSTGRES_EXTERNAL_PORT:-5432}:5432'
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: pass
-      POSTGRES_DB: nest-help
-    volumes:
-      - nest-help-db:/var/lib/postgresql/nest-help
+@Entity()
+export class User {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-volumes:
-  nest-help-db:
+  // nullable mean that it can't be empty when it's false
+  @Column({ type: 'varchar', nullable: false })
+  userName: string;
+
+  @Column({ type: 'varchar', nullable: false, unique: true })
+  email: string;
+
+  @Column({ type: 'int', nullable: true })
+  age: string;
+
+  @Column({ type: 'boolean', default: false })
+  isActive: boolean;
+
+  @Column({ type: 'varchar', nullable: false })
+  password: boolean;
+}
 ----
 
-add script - "start:db": "sudo docker compose -f docker-compose.db.yml up",
+$ Passport
+----
+$ npm install --save @nestjs/passport passport passport-local
+$ npm install --save-dev @types/passport-local
+$ npm install --save @nestjs/jwt
+$ npm install passport-jwt
+$ npm install passport-http-bearer
+----
 
-npm i pg -save
+$ nest g module auth & nest g service auth
+create file - bearer.strategy.ts
+----
 
-npm run start:db
-after npm run start:dev
+----
+
+
 ```
 
 ## Nest CLI

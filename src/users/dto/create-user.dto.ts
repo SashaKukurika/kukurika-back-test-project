@@ -1,13 +1,20 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
+// first validation before DB - must have
 export class UserCreateDto {
   // ApiProperty for swagger
   @ApiProperty()
   @IsString()
   // put list of valid variants
   // @IsEnum()
-  name: string;
+  userName: string;
 
   @ApiProperty()
   // IsNumber validate value must be a number
@@ -19,4 +26,14 @@ export class UserCreateDto {
   @IsString()
   @IsNotEmpty()
   password: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  email: string;
+
+  @ApiProperty()
+  @IsBoolean()
+  @IsOptional()
+  isActive: boolean;
 }
