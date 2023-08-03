@@ -6,17 +6,26 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiExtraModels, ApiTags } from '@nestjs/swagger';
 
+import {
+  ApiPaginatedResponse,
+  PaginatedDto,
+} from '../common/pagination/response';
+import { PublicUserInfoDto } from '../common/query/user.query.dto';
 import { UserCreateDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { PublicUserData } from './interface/user.interface';
 import { UsersService } from './users.service';
 
+// @UseGuards(AuthGuard()) it will work for full controller
 // ApiTags for swagger to create entity for all users
 @ApiTags('Users')
+@ApiExtraModels(PublicUserData, PaginatedDto)
 @Controller('users')
 export class UsersController {
   // in constructor write all service that we will use
@@ -28,9 +37,10 @@ export class UsersController {
   }
 
   @UseGuards(AuthGuard())
+  @ApiPaginatedResponse('entities', PublicUserData)
   @Get()
-  async findAll() {
-    return this.usersService.findAll();
+  async findAll(@Query() query: PublicUserInfoDto) {
+    return this.usersService.findAll(query);
   }
 
   // name in Get and Param must be the same

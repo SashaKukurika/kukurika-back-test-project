@@ -1,12 +1,16 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
+import { paginateRawAndEntities } from 'nestjs-typeorm-paginate';
 import { Repository } from 'typeorm';
 
 import { AuthService } from '../auth/auth.service';
+import { PaginatedDto } from '../common/pagination/response';
+import { PublicUserInfoDto } from '../common/query/user.query.dto';
 import { UserCreateDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import { PublicUserData } from './interface/user.interface';
 
 @Injectable()
 export class UsersService {
@@ -39,8 +43,40 @@ export class UsersService {
     return { token };
   }
 
-  async findAll(): Promise<User[]> {
-    return this.userRepository.find();
+  async findAll(
+    query: PublicUserInfoDto,
+  ): Promise<PaginatedDto<PublicUserData>> {
+    query.sort = query.sort || 'id';
+    query.order = query.order || 'ASC';
+
+    const options = {
+      page: query.page || 1,
+      limit: query.limit || 2,
+    };
+
+    const queryBuilder = this.userRepository
+      .createQueryBuilder('users')
+      .select('id, age, email, "userName"');
+
+    if (query.search) {
+      queryBuilder.where('"userName" IN(:...search)', {
+        search: query.search.split(','),
+      });
+    }
+
+    queryBuilder.orderBy(`${query.sort}`, query.order as 'ASC' | 'DESC');
+
+    const [pagination, rawResults] = await paginateRawAndEntities(
+      queryBuilder,
+      options,
+    );
+
+    return {
+      page: pagination.meta.currentPage,
+      pages: pagination.meta.totalPages,
+      countItem: pagination.meta.totalItems,
+      entities: rawResults as any as [PublicUserData],
+    };
   }
 
   async findOne(userId: number) {

@@ -1,44 +1,91 @@
-## Husky-Consultation
+## Pagination custom Decorator
 
-ми передаємо в експорт все що хочемо використовувати в іншищ модулях і в тому модулі в якому ми хочемо це 
-використати кладемо в імпорти той модуль з якого передавали, і той модуль дасть усе що лежить у нього в експортах
+якщо декоратор починається зі слова Api це для свагера
 
-не можна експортувати щось що не прописано в провайдерах
-
-зміни у коді які ми зробили можна покласти в stash, тобто ідемо в git - uncommitted changes - stash changes там вони 
-усі збережуться, а потім переходимо на гілку яка нам потрібна і виконуємо - unstash changes щоб вони застосувались 
-для гілки на якій ми знаходимось
-
-fork дає можливість взяти собі склонувати репозиторій, щоб потім отримати зміни які відбулись після клонування 
-потрібно зайти в git - github - sync fork
-
-## Husky
+## lib
 ```bash
-npm i husky
-npm pkg set scripts.prepare="husky install"
-npm run prepare
-npx husky add .husky/pre-commit "npm test"
-git add .husky/pre-commit
+npm i nestjs-typeorm-paginate
 ```
-## Validation
+## Decorator
 
 ```bash
-# install
-$ npm i --save class-validator class-transformer
+import {
+  registerDecorator,
+  ValidationArguments,
+  ValidationOptions,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+} from 'class-validator';
 
-# add to main.ts
-app.useGlobalPipes(new ValidationPipe());
+export function Match(property: string, validationOptions?: ValidationOptions) {
+  return (object: any, propertyName: string) => {
+    registerDecorator({
+      target: object.constructor,
+      propertyName,
+      options: validationOptions,
+      constraints: [property],
+      validator: MatchConstraint,
+    });
+  };
+}
 
-# production mode
-$ npm run start:prod
+@ValidatorConstraint({ name: 'Match' })
+export class MatchConstraint implements ValidatorConstraintInterface {
+  validate(value: any, args: ValidationArguments) {
+    const [relatedPropertyName] = args.constraints;
+    const relatedValue = (args.object as any)[relatedPropertyName];
+    return value === relatedValue;
+  }
+}
 ```
 
-## Swagger
+## for custom response
 
 ```bash
-# Swagger
-# to watch http://localhost:3000/api#/
-$ npm install --save @nestjs/swagger
+import { applyDecorators, Type } from '@nestjs/common';
+import { ApiOkResponse, ApiProperty, getSchemaPath } from '@nestjs/swagger';
+
+export class PaginatedDto<TModel> {
+  @ApiProperty()
+  page: number;
+
+  @ApiProperty()
+  pages: number;
+
+  @ApiProperty()
+  countItem: number;
+
+  @ApiProperty()
+  entities: TModel[];
+}
+
+export const ApiPaginatedResponse = <TModel extends Type<any>>(
+  property: string,
+  model: TModel,
+) => {
+  return applyDecorators(
+    ApiOkResponse({
+      schema: {
+        properties: {
+          data: {
+            allOf: [
+              { $ref: getSchemaPath(PaginatedDto) },
+              {
+                properties: {
+                  [`${property}`]: {
+                    type: 'array',
+                    items: { $ref: getSchemaPath(model) },
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+    }),
+  );
+};
+
 ```
 ## Command for module
 
