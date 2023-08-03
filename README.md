@@ -1,50 +1,16 @@
-## DB configuration
+## Husky-Consultation
 
-```bash
-create entity
-----
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+ми передаємо в експорт все що хочемо використовувати в іншищ модулях і в тому модулі в якому ми хочемо це 
+використати кладемо в імпорти той модуль з якого передавали, і той модуль дасть усе що лежить у нього в експортах
 
-@Entity()
-export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
+не можна експортувати щось що не прописано в провайдерах
 
-  // nullable mean that it can't be empty when it's false
-  @Column({ type: 'varchar', nullable: false })
-  userName: string;
+зміни у коді які ми зробили можна покласти в stash, тобто ідемо в git - uncommitted changes - stash changes там вони 
+усі збережуться, а потім переходимо на гілку яка нам потрібна і виконуємо - unstash changes щоб вони застосувались 
+для гілки на якій ми знаходимось
 
-  @Column({ type: 'varchar', nullable: false, unique: true })
-  email: string;
-
-  @Column({ type: 'int', nullable: true })
-  age: string;
-
-  @Column({ type: 'boolean', default: false })
-  isActive: boolean;
-
-  @Column({ type: 'varchar', nullable: false })
-  password: boolean;
-}
-----
-
-$ Passport
-----
-$ npm install --save @nestjs/passport passport passport-local
-$ npm install --save-dev @types/passport-local
-$ npm install --save @nestjs/jwt
-$ npm install passport-jwt
-$ npm install passport-http-bearer
-----
-
-$ nest g module auth & nest g service auth
-create file - bearer.strategy.ts
-----
-
-----
-
-
-```
+fork дає можливість взяти собі склонувати репозиторій, щоб потім отримати зміни які відбулись після клонування 
+потрібно зайти в git - github - sync fork
 
 ## Nest CLI
 ```bash

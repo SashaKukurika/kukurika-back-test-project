@@ -7,6 +7,6 @@ import { AnimalsService } from './animals.service';
   controllers: [AnimalsController],
   providers: [AnimalsService],
   // exports this module, to have possibility to use it at another module
-  exports: [AnimalsModule],
+  exports: [],
 })
 export class AnimalsModule {}

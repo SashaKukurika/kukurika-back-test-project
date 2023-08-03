@@ -26,7 +26,13 @@ export class BearerStrategy extends PassportStrategy(Strategy, 'bearer') {
       user = await this.authService.validateUser(payload.id);
     } catch (e) {
       // eslint-disable-next-line no-console
-      console.log(new Date().toISOString(), token);
+      console.log(
+        new Date().toISOString(),
+        ' [JWT USER VERIFY ERROR] ',
+        JSON.stringify(e),
+        ' [TOKEN] ',
+        token,
+      );
       throw new UnauthorizedException();
     }
 
