@@ -48,6 +48,7 @@ export class UsersService {
   }
 
   async update(userId: number, updateUserDto: UpdateUserDto) {
+    console.log(updateUserDto);
     return `This action updates a #${userId} user`;
   }
 
