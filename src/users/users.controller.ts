@@ -26,7 +26,7 @@ export class UsersController {
   async create(@Body() data: UserCreateDto) {
     return this.usersService.createUser(data);
   }
-  // todo check guard
+
   @UseGuards(AuthGuard())
   @Get()
   async findAll() {
