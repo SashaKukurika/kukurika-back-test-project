@@ -12,13 +12,13 @@
 fork дає можливість взяти собі склонувати репозиторій, щоб потім отримати зміни які відбулись після клонування 
 потрібно зайти в git - github - sync fork
 
-## Nest CLI
+## Husky
 ```bash
-$ nest --help                       перегляд доступних команд
-$ nest generate --help              довідка про певну команду
-$ nest generate controller name     створить контролер з назвою name 
-
-завжди створюють controller, module, service, а spec видаляють
+npm i husky
+npm pkg set scripts.prepare="husky install"
+npm run prepare
+npx husky add .husky/pre-commit "npm test"
+git add .husky/pre-commit
 ```
 ## Validation
 
