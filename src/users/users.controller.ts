@@ -31,9 +31,13 @@ export class UsersController {
   // in constructor write all service that we will use
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  async create(@Body() data: UserCreateDto) {
-    return this.usersService.createUser(data);
+  @Post('login')
+  async login(@Body() data: UserCreateDto) {
+    return this.usersService.login(data);
+  }
+  @Post('register')
+  async register(@Body() data: UserCreateDto) {
+    return this.usersService.register(data);
   }
 
   @UseGuards(AuthGuard())

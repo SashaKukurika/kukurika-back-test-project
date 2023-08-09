@@ -8,6 +8,9 @@ export class PublicUserData {
   userName: string;
 
   @ApiProperty()
+  role: string;
+
+  @ApiProperty()
   age: number;
 
   @ApiProperty()

@@ -1,12 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import * as bcrypt from 'bcrypt';
 import { paginateRawAndEntities } from 'nestjs-typeorm-paginate';
 import { Repository } from 'typeorm';
 
 import { AuthService } from '../auth/auth.service';
 import { PaginatedDto } from '../common/pagination/response';
 import { PublicUserInfoDto } from '../common/query/user.query.dto';
+import { PasswordService } from '../password/password.service';
 import { UserCreateDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -14,13 +14,36 @@ import { PublicUserData } from './interface/user.interface';
 
 @Injectable()
 export class UsersService {
-  private salt = 5;
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly authService: AuthService,
+    private readonly passwordService: PasswordService,
   ) {}
-  async createUser(data: UserCreateDto) {
+  async login(data: UserCreateDto) {
+    const findUser = await this.userRepository.findOne({
+      where: {
+        email: data.email,
+      },
+    });
+
+    const isMatched = await this.passwordService.compare(
+      data.password,
+      findUser.password,
+    );
+
+    if (!findUser || !isMatched) {
+      throw new HttpException(
+        'Incorrect email or password',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const token = await this.signIn(findUser);
+
+    return { token };
+  }
+  async register(data: UserCreateDto) {
     const findUser = await this.userRepository.findOne({
       where: {
         email: data.email,
@@ -33,7 +56,7 @@ export class UsersService {
       );
     }
 
-    data.password = await this.getHash(data.password);
+    data.password = await this.passwordService.getHash(data.password);
     const newUser = this.userRepository.create(data);
 
     await this.userRepository.save(newUser);
@@ -90,10 +113,6 @@ export class UsersService {
 
   async remove(userId: number) {
     return `This action removes a #${userId} user`;
-  }
-
-  async getHash(password: string): Promise<string> {
-    return await bcrypt.hash(password, this.salt);
   }
 
   async signIn(user) {

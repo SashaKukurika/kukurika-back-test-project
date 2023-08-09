@@ -13,6 +13,7 @@ export class UserCreateDto {
   // ApiProperty for swagger
   @ApiProperty()
   @IsString()
+  @IsOptional()
   // put list of valid variants
   // @IsEnum()
   userName: string;
