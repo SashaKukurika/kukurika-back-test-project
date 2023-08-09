@@ -7,7 +7,7 @@ export class User {
 
   // nullable mean that it can't be empty when it's false
   @Column({ type: 'varchar', nullable: true })
-  userName: string;
+  name: string;
 
   @Column({ type: 'varchar', nullable: false, unique: true })
   email: string;
@@ -16,7 +16,7 @@ export class User {
   age: number;
 
   @Column({ type: 'boolean', default: false })
-  isActive: boolean;
+  premiumAccount: boolean;
 
   @Column({ type: 'varchar', nullable: false })
   password: string;

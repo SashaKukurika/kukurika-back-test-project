@@ -1,5 +1,26 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 
-import { UserCreateDto } from './create-user.dto';
+export class UpdateUserDto {
+  // ApiProperty for swagger
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  // put list of valid variants
+  // @IsEnum()
+  name: string;
 
-export class UpdateUserDto extends PartialType(UserCreateDto) {}
+  @ApiProperty()
+  // IsNumber validate value must be a number
+  @IsNumber()
+  @IsOptional()
+  age: number;
+
+  @ApiProperty()
+  @IsBoolean()
+  @IsOptional()
+  premiumAccount: boolean;
+
+  // @ApiProperty({ enum: RoleEnum, default: [], isArray: true })
+  // roles: RoleEnum[] = []
+}

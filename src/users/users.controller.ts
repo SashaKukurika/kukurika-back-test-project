@@ -48,23 +48,31 @@ export class UsersController {
   }
 
   // name in Get and Param must be the same
+  @UseGuards(AuthGuard())
   @Get(':userId')
+  // @Roles('admin')
   // @UseGuards(RolesGuard)
-  // @Roles('admin', 'user')
   async findOne(@Param('userId') id: string) {
-    return this.usersService.findOne(+id);
+    return this.usersService.findByIdOrThrow(id);
   }
 
+  @UseGuards(AuthGuard())
   @Patch(':userId')
-  async update(
+  async updateUserInfo(
     @Param('userId') userId: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    return this.usersService.update(+userId, updateUserDto);
+    return this.usersService.updateUserInfo(userId, updateUserDto);
   }
 
+  @UseGuards(AuthGuard())
   @Delete(':userId')
-  async remove(@Param('userId') userId: string) {
-    return this.usersService.remove(+userId);
+  async delete(@Param('userId') userId: string) {
+    return this.usersService.delete(userId);
+  }
+
+  @Post('manager')
+  async createManager(@Body() data: UserCreateDto) {
+    return this.usersService.createManager(data);
   }
 }

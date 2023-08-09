@@ -20,19 +20,24 @@ export class UsersService {
     private readonly authService: AuthService,
     private readonly passwordService: PasswordService,
   ) {}
-  async login(data: UserCreateDto) {
+  async login(data: UserCreateDto): Promise<{ token: string }> {
     const findUser = await this.userRepository.findOne({
       where: {
         email: data.email,
       },
     });
-
+    if (!findUser) {
+      throw new HttpException(
+        'Incorrect email or password',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const isMatched = await this.passwordService.compare(
       data.password,
       findUser.password,
     );
 
-    if (!findUser || !isMatched) {
+    if (!isMatched) {
       throw new HttpException(
         'Incorrect email or password',
         HttpStatus.BAD_REQUEST,
@@ -43,7 +48,7 @@ export class UsersService {
 
     return { token };
   }
-  async register(data: UserCreateDto) {
+  async register(data: UserCreateDto): Promise<{ token: string }> {
     const findUser = await this.userRepository.findOne({
       where: {
         email: data.email,
@@ -102,17 +107,47 @@ export class UsersService {
     };
   }
 
-  async findOne(userId: number) {
-    return `This action returns a #${userId} user`;
+  // async findOne(userId: string): Promise<User> {
+  //   return await this.userRepository.findOne({
+  //     where: {
+  //       id: +userId,
+  //     },
+  //   });
+  // }
+
+  async updateUserInfo(userId: string, updateUserDto: UpdateUserDto) {
+    try {
+      await this.findByIdOrThrow(userId);
+
+      const { raw } = await this.userRepository
+        .createQueryBuilder()
+        .update(User)
+        .set(updateUserDto)
+        .where('id = :id', { id: userId })
+        .returning('*') // Повернення оновлених даних
+        .execute();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, ...result } = raw[0];
+      return result;
+    } catch (e) {
+      throw new HttpException(`${e}`, HttpStatus.BAD_REQUEST);
+    }
   }
 
-  async update(userId: number, updateUserDto: UpdateUserDto) {
-    console.log(updateUserDto);
-    return `This action updates a #${userId} user`;
+  async delete(userId: string): Promise<void> {
+    try {
+      await this.findByIdOrThrow(userId);
+
+      await this.userRepository.delete(userId);
+    } catch (e) {
+      throw new HttpException(`${e}`, HttpStatus.BAD_REQUEST);
+    }
   }
 
-  async remove(userId: number) {
-    return `This action removes a #${userId} user`;
+  async createManager(data: UserCreateDto): Promise<User> {
+    const user = await this.userRepository.create({ ...data, role: 'manager' });
+    await this.userRepository.save(user);
+    return user;
   }
 
   async signIn(user) {
@@ -120,5 +155,20 @@ export class UsersService {
       id: user.id.toString(),
       role: user.role,
     });
+  }
+
+  async findByIdOrThrow(value: string) {
+    try {
+      const user = await this.userRepository.findOne({ where: { id: +value } });
+      if (!user) {
+        throw new HttpException(
+          `User with id ${value} not exist`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      return user;
+    } catch (e) {
+      throw new HttpException(`${e}`, HttpStatus.BAD_REQUEST);
+    }
   }
 }

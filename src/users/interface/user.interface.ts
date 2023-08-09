@@ -5,7 +5,7 @@ export class PublicUserData {
   id: number;
 
   @ApiProperty()
-  userName: string;
+  name: string;
 
   @ApiProperty()
   role: string;
@@ -15,4 +15,7 @@ export class PublicUserData {
 
   @ApiProperty()
   email: number;
+
+  @ApiProperty()
+  premiumAccount: boolean;
 }
