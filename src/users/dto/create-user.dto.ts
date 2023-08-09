@@ -41,4 +41,7 @@ export class UserCreateDto {
   @IsBoolean()
   @IsOptional()
   isActive: boolean;
+
+  // @ApiProperty({ enum: RoleEnum, default: [], isArray: true })
+  // roles: RoleEnum[] = []
 }

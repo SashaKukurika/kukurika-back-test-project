@@ -49,6 +49,8 @@ export class UsersController {
 
   // name in Get and Param must be the same
   @Get(':userId')
+  // @UseGuards(RolesGuard)
+  // @Roles('admin', 'user')
   async findOne(@Param('userId') id: string) {
     return this.usersService.findOne(+id);
   }
