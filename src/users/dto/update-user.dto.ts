@@ -16,7 +16,7 @@ export class UpdateUserDto {
   @IsOptional()
   age: number;
 
-  @ApiProperty()
+  @ApiProperty({ default: false })
   @IsBoolean()
   @IsOptional()
   premiumAccount: boolean;

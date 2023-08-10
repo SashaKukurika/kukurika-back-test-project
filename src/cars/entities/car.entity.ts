@@ -17,4 +17,13 @@ export class Car {
 
   @Column({ type: 'int', nullable: false })
   price: number;
+
+  @Column({ type: 'varchar', nullable: false })
+  pathToPhoto: string;
+
+  @Column({ type: 'boolean', default: false })
+  isActive: boolean;
+
+  @Column({ type: 'int', nullable: false })
+  userId: number;
 }

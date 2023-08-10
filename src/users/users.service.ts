@@ -84,10 +84,10 @@ export class UsersService {
 
     const queryBuilder = this.userRepository
       .createQueryBuilder('users')
-      .select('id, age, email, "userName"');
+      .select('id, age, email, "name"');
 
     if (query.search) {
-      queryBuilder.where('"userName" IN(:...search)', {
+      queryBuilder.where('"name" IN(:...search)', {
         search: query.search.split(','),
       });
     }
