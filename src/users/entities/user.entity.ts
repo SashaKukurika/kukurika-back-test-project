@@ -1,4 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+
+import { Car } from '../../cars/entities/car.entity';
 
 @Entity()
 export class User {
@@ -23,4 +25,7 @@ export class User {
 
   @Column({ type: 'varchar', default: 'user' })
   role: string;
+
+  @OneToMany(() => Car, (car) => car.user)
+  cars: Car[];
 }

@@ -1,4 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+
+import { User } from '../../users/entities/user.entity';
 
 @Entity()
 export class Car {
@@ -24,6 +26,6 @@ export class Car {
   @Column({ type: 'boolean', default: false })
   isActive: boolean;
 
-  @Column({ type: 'int', nullable: false })
-  userId: number;
+  @ManyToOne(() => User, (user) => user.cars)
+  user: User;
 }

@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
 
 // first validation before DB - must have
 export class CreateCarDto {
@@ -16,6 +23,8 @@ export class CreateCarDto {
   @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
+  @Min(1960)
+  @Max(new Date().getFullYear())
   year: number;
 
   @ApiProperty()

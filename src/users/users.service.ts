@@ -29,7 +29,7 @@ export class UsersService {
     if (!findUser) {
       throw new HttpException(
         'Incorrect email or password',
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.UNAUTHORIZED,
       );
     }
     const isMatched = await this.passwordService.compare(
@@ -40,7 +40,7 @@ export class UsersService {
     if (!isMatched) {
       throw new HttpException(
         'Incorrect email or password',
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.UNAUTHORIZED,
       );
     }
 
