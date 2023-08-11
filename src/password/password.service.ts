@@ -3,6 +3,7 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class PasswordService {
+  // TODO drop to env
   private salt = 5;
   async getHash(password: string): Promise<string> {
     return await bcrypt.hash(password, this.salt);

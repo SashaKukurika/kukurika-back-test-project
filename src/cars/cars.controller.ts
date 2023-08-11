@@ -15,15 +15,20 @@ import { Express } from 'express';
 import { CarsService } from './cars.service';
 import { CreateCarDto } from './dto/create-car.dto';
 import { CarBrandEnum } from './enums/car-brand.enum';
+import { CurrencyEnum } from './enums/currency.enum';
 
 @ApiTags('Cars')
 @Controller('cars')
 export class CarsController {
   constructor(private readonly carsService: CarsService) {}
 
-  @Post(':userId')
-  async create(@Param() userId: string, @Body() createCarDto: CreateCarDto) {
-    return this.carsService.create(userId, createCarDto);
+  @Post(':userId/:currency')
+  async create(
+    @Param() userId: string,
+    @Param() currency: CurrencyEnum,
+    @Body() createCarDto: CreateCarDto,
+  ) {
+    return this.carsService.create(userId, createCarDto, currency);
   }
 
   @Get('/brand')
@@ -36,9 +41,9 @@ export class CarsController {
     return await this.carsService.findAllUniqueModelByBrand(brand);
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.carsService.findOne(+id);
+  @Get(':currency/:price/:carId')
+  async findOne() {
+    return this.carsService.findOne();
   }
 
   // @Patch(':id')

@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Express } from 'express';
 import { Repository } from 'typeorm';
 
+import { CurrencyService } from '../currency/currency.service';
 import { ItemTypeEnum } from '../s3/enums/item-type.enum';
 import { S3Service } from '../s3/s3.service';
 import { CreateCarDto } from './dto/create-car.dto';
@@ -15,8 +16,13 @@ export class CarsService {
     @InjectRepository(Car)
     private readonly carRepository: Repository<Car>,
     private readonly s3Service: S3Service,
+    private readonly currencyService: CurrencyService,
   ) {}
-  async create(userId: string, createCarDto: CreateCarDto) {
+  async create(
+    userId: string,
+    createCarDto: CreateCarDto,
+    // currency: CurrencyEnum,
+  ) {
     createCarDto.userId = +userId;
   }
 
@@ -35,8 +41,8 @@ export class CarsService {
       .getRawMany();
   }
 
-  async findOne(id: number) {
-    return `This action returns a #${id} car`;
+  async findOne() {
+    return this.currencyService.getCurrencyRates();
   }
 
   async update(id: number, updateCarDto: CreateCarDto) {
