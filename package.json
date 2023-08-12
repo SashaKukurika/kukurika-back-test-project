@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.388.0",
+    "@nestjs-modules/mailer": "^1.9.1",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^3.0.0",
     "@nestjs/core": "^9.0.0",
@@ -46,8 +47,10 @@
     "dotenv": "^16.3.1",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-simple-import-sort": "^10.0.0",
+    "handlebars": "^4.7.8",
     "husky": "^8.0.3",
     "nestjs-typeorm-paginate": "^4.0.4",
+    "nodemailer": "^6.9.4",
     "passport": "^0.6.0",
     "passport-http-bearer": "^1.0.1",
     "passport-jwt": "^4.0.1",

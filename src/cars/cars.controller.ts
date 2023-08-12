@@ -28,7 +28,7 @@ export class CarsController {
     @Param() currency: CurrencyEnum,
     @Body() createCarDto: CreateCarDto,
   ) {
-    return this.carsService.create(userId, createCarDto, currency);
+    return this.carsService.create(userId, createCarDto);
   }
 
   @Get('/brand')
@@ -50,6 +50,11 @@ export class CarsController {
   // update(@Param('id') id: string, @Body() updateCarDto: UpdateCarDto) {
   //   return this.carsService.update(+id, updateCarDto);
   // }
+
+  @Post(':userId/addBrand')
+  async addBrand(@Param('userId') userId: string) {
+    console.log(userId);
+  }
 
   @Delete(':carId/photo')
   async remove(@Param('carId') id: string) {
