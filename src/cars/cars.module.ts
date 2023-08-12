@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthModule } from '../auth/auth.module';
+import { CoreModule } from '../core/core.module';
 import { CurrencyModule } from '../currency/currency.module';
 import { S3Module } from '../s3/s3.module';
 import { CarsController } from './cars.controller';
@@ -16,6 +17,7 @@ import { Car } from './entities/car.entity';
     AuthModule,
     S3Module,
     CurrencyModule,
+    CoreModule,
   ],
 })
 export class CarsModule {}

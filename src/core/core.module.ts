@@ -1,21 +1,20 @@
-import * as path from 'node:path';
-
 import { Module } from '@nestjs/common';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
-import * as process from 'process';
+import * as path from 'path';
 
-import { MailService } from './mail.service';
+import { Configs } from './configs/constants';
+import { MailService } from './mail/mail.service';
 
 @Module({
   imports: [
     MailerModule.forRoot({
-      transport: `smtp://${process.env.BREVO_SMTP_LOGIN}:${process.env.BREVO_SMTP_PASSWORD}@${process.env.BREVO_SMTP_SERVER}:${process.env.BREVO_SMTP_PORT}`,
+      transport: `smtp://${Configs.BREVO_SMTP_LOGIN}:${Configs.BREVO_SMTP_PASSWORD}@${Configs.BREVO_SMTP_SERVER}:${Configs.BREVO_SMTP_PORT}`,
       defaults: {
-        from: '"avoria-clone" <avoriaclone@nestjs.com>',
+        from: '"nest-modules" <modules@nestjs.com>',
       },
       template: {
-        dir: path.join(__dirname, '/templates'),
+        dir: path.join(__dirname, '..', '..', '/templates'),
         adapter: new HandlebarsAdapter(),
         options: {
           strict: true,
@@ -26,4 +25,4 @@ import { MailService } from './mail.service';
   providers: [MailService],
   exports: [MailService],
 })
-export class MailModule {}
+export class CoreModule {}

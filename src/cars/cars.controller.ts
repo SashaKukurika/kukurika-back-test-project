@@ -22,7 +22,8 @@ import { CurrencyEnum } from './enums/currency.enum';
 export class CarsController {
   constructor(private readonly carsService: CarsService) {}
 
-  @Post(':userId/:currency')
+  //TODO do like query currency
+  @Post(':userId/currency')
   async create(
     @Param() userId: string,
     @Param() currency: CurrencyEnum,
@@ -41,10 +42,11 @@ export class CarsController {
     return await this.carsService.findAllUniqueModelByBrand(brand);
   }
 
-  @Get(':currency/:price/:carId')
-  async findOne() {
-    return this.carsService.findOne();
-  }
+  //TODO do like query
+  // @Get(':currency/:price/:carId')
+  // async findOne() {
+  //   return this.carsService.findOne();
+  // }
 
   // @Patch(':id')
   // update(@Param('id') id: string, @Body() updateCarDto: UpdateCarDto) {
@@ -52,13 +54,13 @@ export class CarsController {
   // }
 
   @Post(':userId/addBrand')
-  async addBrand(@Param('userId') userId: string) {
-    console.log(userId);
+  async addBrand(@Param('userId') userId: string, @Body() brand: string) {
+    return await this.carsService.addBrand(userId, brand);
   }
 
   @Delete(':carId/photo')
   async remove(@Param('carId') id: string) {
-    return this.carsService.remove(id);
+    return await this.carsService.remove(id);
   }
 
   @UseInterceptors(FileInterceptor('file'))
