@@ -4,6 +4,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 import * as path from 'path';
 
 import { Configs } from './configs/constants';
+import { CurrencyService } from './currency/currency.service';
 import { MailService } from './mail/mail.service';
 
 @Module({
@@ -22,7 +23,7 @@ import { MailService } from './mail/mail.service';
       },
     }),
   ],
-  providers: [MailService],
-  exports: [MailService],
+  providers: [MailService, CurrencyService],
+  exports: [MailService, CurrencyService],
 })
 export class CoreModule {}

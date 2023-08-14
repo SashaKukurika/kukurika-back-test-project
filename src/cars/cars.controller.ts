@@ -18,7 +18,6 @@ import { CarBrandDto } from './dto/car-brand.dto';
 import { CreateCarDto } from './dto/create-car.dto';
 import { Model } from './entities/model.entity';
 import { CarBrandEnum } from './enums/car-brand.enum';
-import { CurrencyEnum } from './enums/currency.enum';
 
 @ApiTags('Cars')
 @Controller('cars')
@@ -26,10 +25,9 @@ export class CarsController {
   constructor(private readonly carsService: CarsService) {}
 
   //TODO do like query currency
-  @Post(':userId/currency')
+  @Post(':userId/create')
   async create(
-    @Param() userId: string,
-    @Param() currency: CurrencyEnum,
+    @Param('userId') userId: string,
     @Body() createCarDto: CreateCarDto,
   ) {
     return this.carsService.create(userId, createCarDto);

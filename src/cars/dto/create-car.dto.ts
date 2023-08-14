@@ -1,12 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsBoolean,
+  IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
   Max,
   Min,
 } from 'class-validator';
+
+import { CurrencyEnum } from '../enums/currency.enum';
 
 // first validation before DB - must have
 export class CreateCarDto {
@@ -29,21 +32,31 @@ export class CreateCarDto {
 
   @ApiProperty()
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   price: number;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  pathToPhoto: string;
-
-  @ApiProperty({ default: false })
-  @IsBoolean()
-  @IsNotEmpty()
-  isActive: string;
 
   @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
-  userId: number;
+  userPrice: number;
+
+  @ApiProperty()
+  @IsString()
+  @IsEnum(CurrencyEnum)
+  userCurrency: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  currencyRate: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  advertisementText: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  pathToPhoto: string;
 }

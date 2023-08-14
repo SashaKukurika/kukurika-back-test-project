@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import axios from 'axios';
 
 @Injectable()
@@ -10,8 +10,10 @@ export class CurrencyService {
       );
       return response.data;
     } catch (error) {
-      console.error('Error fetching currency rates:', error);
-      return [];
+      throw new HttpException(
+        `Currency rates API: ${error}`,
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 }

@@ -20,7 +20,19 @@ export class Car {
   @Column({ type: 'int', nullable: false })
   price: number;
 
+  @Column({ type: 'int', nullable: false, default: 0 })
+  userPrice: number;
+
+  @Column({ type: 'varchar', nullable: false, default: 'UAH' })
+  userCurrency: string;
+
+  @Column({ type: 'varchar', nullable: false, default: 1 })
+  currencyRate: string;
+
   @Column({ type: 'varchar', nullable: false })
+  advertisementText: string;
+
+  @Column({ type: 'varchar', nullable: true })
   pathToPhoto: string;
 
   @Column({ type: 'boolean', default: false })

@@ -1,9 +1,9 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Express } from 'express';
 import { Repository } from 'typeorm';
 
-import { CurrencyService } from '../currency/currency.service';
+import { CurrencyService } from '../core/currency/currency.service';
 import { ItemTypeEnum } from '../s3/enums/item-type.enum';
 import { S3Service } from '../s3/s3.service';
 import { User } from '../users/entities/user.entity';
@@ -13,6 +13,7 @@ import { Brand } from './entities/brand.entity';
 import { Car } from './entities/car.entity';
 import { Model } from './entities/model.entity';
 import { CarBrandEnum } from './enums/car-brand.enum';
+import { CurrencyEnum } from './enums/currency.enum';
 
 @Injectable()
 export class CarsService {
@@ -71,12 +72,36 @@ export class CarsService {
     }
   }
 
-  async create(
-    userId: string,
-    createCarDto: CreateCarDto,
-    // currency: CurrencyEnum,
-  ) {
-    createCarDto.userId = +userId;
+  async create(userId: string, createCarDto: CreateCarDto) {
+    const user = await this.userRepository.findOne({
+      where: { id: +userId },
+      relations: ['cars'],
+    });
+    if (!user) {
+      throw new HttpException(
+        `User with id ${userId} not exist`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    if (user.cars.length > 0 && !user.premiumAccount) {
+      throw new HttpException(
+        'Only one ad can be placed. For more, buy a premium account.',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    const { price, currencyBuyRate } = await this.createPrice(
+      createCarDto.userPrice,
+      createCarDto.userCurrency as CurrencyEnum,
+    );
+    createCarDto.price = price;
+    createCarDto.currencyRate = currencyBuyRate;
+
+    const newCar = await this.carRepository.create({
+      ...createCarDto,
+      user: user,
+    });
+    await this.carRepository.save(newCar);
   }
 
   async findAllBrands() {
@@ -131,5 +156,25 @@ export class CarsService {
     return this.carRepository.update(id, { pathToPhoto });
   }
 
-  // async createPrice(price: number, currency: CurrencyEnum)
+  async createPrice(
+    userPrice: number,
+    userCurrency: CurrencyEnum,
+  ): Promise<any> {
+    const currencyRates = await this.currencyService.getCurrencyRates();
+    let price = userPrice;
+    let currencyBuyRate = 1;
+
+    switch (userCurrency) {
+      case CurrencyEnum.Eur:
+        price = currencyRates[0].buy * userPrice;
+        currencyBuyRate = currencyRates[0].buy;
+        break;
+      case CurrencyEnum.Usd:
+        price = currencyRates[1].buy * userPrice;
+        currencyBuyRate = currencyRates[1].buy;
+        break;
+    }
+
+    return { price, currencyBuyRate };
+  }
 }

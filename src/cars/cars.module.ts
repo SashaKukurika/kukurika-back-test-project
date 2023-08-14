@@ -3,7 +3,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthModule } from '../auth/auth.module';
 import { CoreModule } from '../core/core.module';
-import { CurrencyModule } from '../currency/currency.module';
 import { S3Module } from '../s3/s3.module';
 import { User } from '../users/entities/user.entity';
 import { CarsController } from './cars.controller';
@@ -19,7 +18,6 @@ import { Model } from './entities/model.entity';
     TypeOrmModule.forFeature([Car, User, Brand, Model]),
     AuthModule,
     S3Module,
-    CurrencyModule,
     CoreModule,
   ],
 })
