@@ -5,6 +5,7 @@ import { AuthModule } from '../auth/auth.module';
 import { CoreModule } from '../core/core.module';
 import { CurrencyModule } from '../currency/currency.module';
 import { S3Module } from '../s3/s3.module';
+import { User } from '../users/entities/user.entity';
 import { CarsController } from './cars.controller';
 import { CarsService } from './cars.service';
 import { Car } from './entities/car.entity';
@@ -13,7 +14,7 @@ import { Car } from './entities/car.entity';
   controllers: [CarsController],
   providers: [CarsService],
   imports: [
-    TypeOrmModule.forFeature([Car]),
+    TypeOrmModule.forFeature([Car, User]),
     AuthModule,
     S3Module,
     CurrencyModule,

@@ -1,16 +1,21 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { paginateRawAndEntities } from 'nestjs-typeorm-paginate';
 import { Repository } from 'typeorm';
 
 import { AuthService } from '../auth/auth.service';
 import { PaginatedDto } from '../common/pagination/response';
+import { CarBrandOrModelDto } from '../common/query/car-brand-model.dto';
 import { PublicUserInfoDto } from '../common/query/user.query.dto';
+import { MailSubjectEnum } from '../core/mail/enums/mail-subject.enum';
+import { MailTemplateEnum } from '../core/mail/enums/mail-template.enum';
+import { MailService } from '../core/mail/mail.service';
 import { PasswordService } from '../password/password.service';
 import { UserCreateDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
-import { PublicUserData } from './interface/user.interface';
+import { PublicUserData } from './interfaces/user.interface';
 
 @Injectable()
 export class UsersService {
@@ -19,6 +24,8 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
     private readonly authService: AuthService,
     private readonly passwordService: PasswordService,
+    private readonly mailService: MailService,
+    private readonly configService: ConfigService,
   ) {}
   async login(data: UserCreateDto): Promise<{ token: string }> {
     const findUser = await this.userRepository.findOne({
@@ -142,6 +149,23 @@ export class UsersService {
     } catch (e) {
       throw new HttpException(`${e}`, HttpStatus.BAD_REQUEST);
     }
+  }
+
+  async addNewBrandOrModel(userId: string, query: CarBrandOrModelDto) {
+    const { brand, model } = query;
+    const { email } = await this.findByIdOrThrow(userId);
+
+    let subject = MailSubjectEnum.BRAND;
+    if (model) {
+      subject = MailSubjectEnum.MODEL;
+    }
+
+    await this.mailService.send(
+      this.configService.get<string>('MANAGER_MAIL_TO_ADD_BRAND_MODEL'),
+      subject,
+      MailTemplateEnum.ADD_NEW_BRAND_OR_MODEL,
+      { email, brand, model },
+    );
   }
 
   async createManager(data: UserCreateDto): Promise<User> {

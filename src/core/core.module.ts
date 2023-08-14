@@ -11,7 +11,7 @@ import { MailService } from './mail/mail.service';
     MailerModule.forRoot({
       transport: `smtp://${Configs.BREVO_SMTP_LOGIN}:${Configs.BREVO_SMTP_PASSWORD}@${Configs.BREVO_SMTP_SERVER}:${Configs.BREVO_SMTP_PORT}`,
       defaults: {
-        from: '"nest-modules" <modules@nestjs.com>',
+        from: '"avtoria-clone" <avtoria-clone@avto.com>',
       },
       template: {
         dir: path.join(__dirname, '..', '..', '/templates'),

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {{#if this.model}}
+    <title>Request to Add a New Model For Car Brand: {{this.brand}}</title>
+  {{else}}
+    <title>Request to Add a New Car Brand</title>
+  {{/if}}
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    .message-container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+    .message-title {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    .message-content {
+      font-size: 16px;
+    }
+    .signature {
+      margin-top: 20px;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+<div class="message-container">
+  {{#if this.model}}
+    <div class="message-title">Request to Add a New Model For Car Brand: {{this.brand}}</div>
+  {{else}}
+    <div class="message-title">Request to Add a New Car Brand</div>
+  {{/if}}
+  <div class="message-content">
+    <p>Dear Manager,</p>
+    {{#if this.model}}
+      <p>I would like to express a request to add a new model for car brand {{this.brand}} to your inventory.</p>
+    {{else}}
+      <p>I would like to express a request to add a new car brand to your inventory.</p>
+    {{/if}}
+    {{#if this.model}}
+      <p>Information about the new model for car brand {{this.brand}}:</p>
+    {{else}}
+      <p>Information about the new car brand:</p>
+    {{/if}}
+    <ul>
+      {{#if this.model}}
+        <li><strong>Name:</strong> {{this.model}}</li>
+      {{else}}
+        <li><strong>Name:</strong> {{this.brand}}</li>
+      {{/if}}
+    </ul>
+    <p>I would appreciate your attention to this request. Please inform me about the next steps.</p>
+  </div>
+  <div class="signature">
+    <p>Best regards,</p>
+    <p>{{this.email}}</p>
+  </div>
+</div>
+</body>
+</html>

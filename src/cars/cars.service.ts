@@ -1,14 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Express } from 'express';
 import { Repository } from 'typeorm';
 
-import { MailTemplateEnum } from '../core/mail/enums/mail-template.enum';
-import { MailService } from '../core/mail/mail.service';
 import { CurrencyService } from '../currency/currency.service';
 import { ItemTypeEnum } from '../s3/enums/item-type.enum';
 import { S3Service } from '../s3/s3.service';
+import { User } from '../users/entities/user.entity';
 import { CreateCarDto } from './dto/create-car.dto';
 import { Car } from './entities/car.entity';
 import { CarBrandEnum } from './enums/car-brand.enum';
@@ -18,10 +16,10 @@ export class CarsService {
   constructor(
     @InjectRepository(Car)
     private readonly carRepository: Repository<Car>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     private readonly s3Service: S3Service,
     private readonly currencyService: CurrencyService,
-    private readonly mailService: MailService,
-    private readonly configService: ConfigService,
   ) {}
   async create(
     userId: string,
@@ -52,16 +50,6 @@ export class CarsService {
 
   async update(id: number, updateCarDto: CreateCarDto) {
     return `This action updates a #${updateCarDto} car`;
-  }
-
-  async addBrand(userId: string, brand: string) {
-    // TODO add email from user
-    await this.mailService.send(
-      this.configService.get<string>('MANAGER_MAIL_TO_ADD_BRAND_MODEL'),
-      brand,
-      MailTemplateEnum.ADD_NEW_BRAND,
-      { userId, brand },
-    );
   }
 
   async remove(id: string) {

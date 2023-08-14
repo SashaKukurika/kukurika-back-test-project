@@ -53,11 +53,6 @@ export class CarsController {
   //   return this.carsService.update(+id, updateCarDto);
   // }
 
-  @Post(':userId/addBrand')
-  async addBrand(@Param('userId') userId: string, @Body() brand: string) {
-    return await this.carsService.addBrand(userId, brand);
-  }
-
   @Delete(':carId/photo')
   async remove(@Param('carId') id: string) {
     return await this.carsService.remove(id);

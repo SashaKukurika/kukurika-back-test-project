@@ -16,10 +16,11 @@ import {
   ApiPaginatedResponse,
   PaginatedDto,
 } from '../common/pagination/response';
+import { CarBrandOrModelDto } from '../common/query/car-brand-model.dto';
 import { PublicUserInfoDto } from '../common/query/user.query.dto';
 import { UserCreateDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { PublicUserData } from './interface/user.interface';
+import { PublicUserData } from './interfaces/user.interface';
 import { UsersService } from './users.service';
 
 // @UseGuards(AuthGuard()) it will work for full controller
@@ -74,5 +75,13 @@ export class UsersController {
   @Post('manager')
   async createManager(@Body() data: UserCreateDto) {
     return this.usersService.createManager(data);
+  }
+
+  @Post(':userId/brandOrModel')
+  async addNewBrandOrModel(
+    @Param('userId') userId: string,
+    @Query() query: CarBrandOrModelDto,
+  ) {
+    return await this.usersService.addNewBrandOrModel(userId, query);
   }
 }
