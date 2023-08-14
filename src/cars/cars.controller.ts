@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -13,7 +14,9 @@ import { ApiTags } from '@nestjs/swagger';
 import { Express } from 'express';
 
 import { CarsService } from './cars.service';
+import { CarBrandDto } from './dto/car-brand.dto';
 import { CreateCarDto } from './dto/create-car.dto';
+import { Model } from './entities/model.entity';
 import { CarBrandEnum } from './enums/car-brand.enum';
 import { CurrencyEnum } from './enums/currency.enum';
 
@@ -32,9 +35,17 @@ export class CarsController {
     return this.carsService.create(userId, createCarDto);
   }
 
-  @Get('/brand')
-  async findAllUniqueBrands() {
-    return await this.carsService.findAllUniqueBrands();
+  @Post('/fill/database')
+  async fillDataBase() {
+    return await this.carsService.fillDataBaseBrandsAndModels();
+  }
+  @Get('/brands')
+  async findAllBrands() {
+    return await this.carsService.findAllBrands();
+  }
+  @Get('/models')
+  async findAllModelsOfTheBrand(@Query() data: CarBrandDto): Promise<Model[]> {
+    return await this.carsService.findAllModelsOfTheBrand(data);
   }
 
   @Get(':brand/model')

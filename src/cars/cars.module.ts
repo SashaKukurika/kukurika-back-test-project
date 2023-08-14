@@ -8,13 +8,15 @@ import { S3Module } from '../s3/s3.module';
 import { User } from '../users/entities/user.entity';
 import { CarsController } from './cars.controller';
 import { CarsService } from './cars.service';
+import { Brand } from './entities/brand.entity';
 import { Car } from './entities/car.entity';
+import { Model } from './entities/model.entity';
 
 @Module({
   controllers: [CarsController],
   providers: [CarsService],
   imports: [
-    TypeOrmModule.forFeature([Car, User]),
+    TypeOrmModule.forFeature([Car, User, Brand, Model]),
     AuthModule,
     S3Module,
     CurrencyModule,
