@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   UploadedFile,
@@ -16,6 +17,7 @@ import { Express } from 'express';
 import { CarsService } from './cars.service';
 import { CarBrandDto } from './dto/car-brand.dto';
 import { CreateCarDto } from './dto/create-car.dto';
+import { UpdateCarDto } from './dto/update-car.dto';
 import { Model } from './entities/model.entity';
 import { CarBrandEnum } from './enums/car-brand.enum';
 
@@ -24,7 +26,11 @@ import { CarBrandEnum } from './enums/car-brand.enum';
 export class CarsController {
   constructor(private readonly carsService: CarsService) {}
 
-  //TODO do like query currency
+  @Post('/fill/database')
+  async fillDataBase() {
+    return await this.carsService.fillDataBaseBrandsAndModels();
+  }
+
   @Post(':userId/create')
   async create(
     @Param('userId') userId: string,
@@ -33,10 +39,6 @@ export class CarsController {
     return this.carsService.create(userId, createCarDto);
   }
 
-  @Post('/fill/database')
-  async fillDataBase() {
-    return await this.carsService.fillDataBaseBrandsAndModels();
-  }
   @Get('/brands')
   async findAllBrands() {
     return await this.carsService.findAllBrands();
@@ -51,16 +53,10 @@ export class CarsController {
     return await this.carsService.findAllUniqueModelByBrand(brand);
   }
 
-  //TODO do like query
-  // @Get(':currency/:price/:carId')
-  // async findOne() {
-  //   return this.carsService.findOne();
-  // }
-
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateCarDto: UpdateCarDto) {
-  //   return this.carsService.update(+id, updateCarDto);
-  // }
+  @Patch(':carId')
+  update(@Param('carId') carId: string, @Body() updateCarDto: UpdateCarDto) {
+    return this.carsService.update(carId, updateCarDto);
+  }
 
   @Delete(':carId/photo')
   async remove(@Param('carId') id: string) {

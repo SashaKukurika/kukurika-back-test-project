@@ -35,6 +35,9 @@ export class Car {
   @Column({ type: 'varchar', nullable: true })
   pathToPhoto: string;
 
+  @Column({ type: 'int', nullable: false, default: 0 })
+  profanityCount: number;
+
   @Column({ type: 'boolean', default: false })
   isActive: boolean;
 

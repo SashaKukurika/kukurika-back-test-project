@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Car Listings</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .car {
+      background-color: #f2f2f2;
+      padding: 10px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .car-info {
+      margin-left: 20px;
+    }
+    .car-image {
+      max-width: 100px;
+    }
+  </style>
+</head>
+<body>
+<h1>Car Listings</h1>
+  <div class="car">
+    {{#if this.pathToPhoto}}
+      <img src="{{this.apiUrl}}/{{this.pathToPhoto}}" alt="Car Photo" class="car-image">
+    {{/if}}
+    <div class="car-info">
+      <h2>{{this.brand}} {{this.model}}</h2>
+      <p>Car ID: {{this.id}}</p>
+      <p>Year: {{this.year}}</p>
+      <p>Price: {{this.price}} UAH</p>
+      <p>User Price: {{this.userPrice}} {{this.userCurrency}}</p>
+      <p>Advertisement: {{this.advertisementText}}</p>
+      {{#if this.email}}
+        <p>Posted by: {{this.email}}</p>
+      {{/if}}
+    </div>
+  </div>
+</body>
+</html>

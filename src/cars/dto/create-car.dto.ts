@@ -1,49 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsEnum,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-  Max,
-  Min,
-} from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 
-import { CurrencyEnum } from '../enums/currency.enum';
+import { UpdateCarDto } from './update-car.dto';
 
 // first validation before DB - must have
-export class CreateCarDto {
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  brand: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  model: string;
-
-  @ApiProperty()
-  @IsNumber()
-  @IsNotEmpty()
-  @Min(1960)
-  @Max(new Date().getFullYear())
-  year: number;
-
+export class CreateCarDto extends UpdateCarDto {
   @ApiProperty()
   @IsNumber()
   @IsOptional()
   price: number;
-
-  @ApiProperty()
-  @IsNumber()
-  @IsNotEmpty()
-  userPrice: number;
-
-  @ApiProperty()
-  @IsString()
-  @IsEnum(CurrencyEnum)
-  userCurrency: string;
 
   @ApiProperty()
   @IsString()
@@ -51,12 +16,12 @@ export class CreateCarDto {
   currencyRate: string;
 
   @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  advertisementText: string;
-
-  @ApiProperty()
-  @IsString()
+  @IsNumber()
   @IsOptional()
-  pathToPhoto: string;
+  profanityCount: number;
+
+  @ApiProperty({ default: false })
+  @IsBoolean()
+  @IsOptional()
+  isActive: boolean;
 }
