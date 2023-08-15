@@ -58,9 +58,19 @@ export class CarsController {
     return this.carsService.update(carId, updateCarDto);
   }
 
+  @Get(':carId/ad')
+  getCarById(@Param('carId') carId: string) {
+    return this.carsService.getCarById(carId);
+  }
+
+  @Get(':carId/ad/statistics')
+  getCarStatistics(@Param('carId') carId: string) {
+    return this.carsService.getCarStatistics(carId);
+  }
+
   @Delete(':carId/photo')
-  async remove(@Param('carId') id: string) {
-    return await this.carsService.remove(id);
+  async removePhoto(@Param('carId') id: string): Promise<void> {
+    return await this.carsService.removePhoto(id);
   }
 
   @UseInterceptors(FileInterceptor('file'))

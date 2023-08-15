@@ -14,6 +14,9 @@ export class User {
   @Column({ type: 'varchar', nullable: false, unique: true })
   email: string;
 
+  @Column({ type: 'varchar', nullable: true, unique: true })
+  phone: string;
+
   @Column({ type: 'int', nullable: true })
   age: number;
 

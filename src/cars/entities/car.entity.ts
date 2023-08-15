@@ -1,6 +1,13 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 import { User } from '../../users/entities/user.entity';
+import { Counter } from './counter.entity';
 
 @Entity()
 export class Car {
@@ -13,6 +20,9 @@ export class Car {
 
   @Column({ type: 'varchar', nullable: false })
   model: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  region: string;
 
   @Column({ type: 'int', nullable: false })
   year: number;
@@ -43,4 +53,7 @@ export class Car {
 
   @ManyToOne(() => User, (user) => user.cars)
   user: User;
+
+  @OneToOne(() => Counter, (counter) => counter.car)
+  counter: Counter;
 }

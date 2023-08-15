@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsPhoneNumber,
+  IsString,
+} from 'class-validator';
 
 export class UpdateUserDto {
   // ApiProperty for swagger
@@ -20,6 +27,12 @@ export class UpdateUserDto {
   @IsBoolean()
   @IsOptional()
   premiumAccount: boolean;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @IsPhoneNumber()
+  phone: string;
 
   // @ApiProperty({ enum: RoleEnum, default: [], isArray: true })
   // roles: RoleEnum[] = []

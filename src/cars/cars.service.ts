@@ -20,6 +20,7 @@ import { ConfigService } from '@nestjs/config';
 
 import { MailTemplateEnum } from '../core/mail/enums/mail-template.enum';
 import { MailService } from '../core/mail/mail.service';
+import { Counter } from './entities/counter.entity';
 
 @Injectable()
 export class CarsService {
@@ -33,6 +34,8 @@ export class CarsService {
     private readonly brandRepository: Repository<Brand>,
     @InjectRepository(Model)
     private readonly modelRepository: Repository<Model>,
+    @InjectRepository(Counter)
+    private readonly counterRepository: Repository<Counter>,
     private readonly s3Service: S3Service,
     private readonly currencyService: CurrencyService,
     private readonly mailService: MailService,
@@ -90,6 +93,11 @@ export class CarsService {
     }
 
     await this.carRepository.update({ id: newCar.id }, { isActive: true });
+
+    const newCounter = await this.counterRepository.create({
+      car: newCar,
+    });
+    await this.counterRepository.save(newCounter);
   }
 
   async findAllModelsOfTheBrand(data: CarBrandDto): Promise<Model[]> {
@@ -163,12 +171,12 @@ export class CarsService {
     );
   }
 
-  async remove(id: string) {
+  async removePhoto(id: string): Promise<void> {
     //TODO add delete from DB
     const { pathToPhoto } = await this.carRepository.findOne({
       where: { id: +id },
     });
-    return await this.s3Service.deleteFile(pathToPhoto);
+    await this.s3Service.deleteFile(pathToPhoto);
   }
 
   async addPhoto(file: Express.Multer.File, id: string) {
@@ -178,6 +186,70 @@ export class CarsService {
       id,
     );
     return this.carRepository.update(id, { pathToPhoto });
+  }
+
+  async getCarById(carId: string) {
+    const car = await this.findByIdOrThrow(carId);
+    if (!car.isActive) {
+      throw new HttpException('This ad is not active.', HttpStatus.BAD_REQUEST);
+    }
+    await this.counterRepository
+      .createQueryBuilder()
+      .update(Counter)
+      .set({
+        views: () => 'views + 1',
+        viewsPerDay: () => 'viewsPerDay + 1',
+        viewsPerWeek: () => 'viewsPerWeek + 1',
+        viewsPerMonth: () => 'viewsPerMonth + 1',
+      })
+      .where('car.id = :carId', { carId })
+      .execute();
+
+    const carWithUser = await this.carRepository.findOne({
+      where: { id: +carId },
+      relations: ['user'],
+    });
+    const {
+      user: { email, phone },
+    } = carWithUser;
+
+    return { car, email, phone };
+  }
+
+  async getCarStatistics(carId: string) {
+    const user = await this.userRepository.findOne({
+      where: { cars: { id: +carId } },
+    });
+
+    if (!user.premiumAccount) {
+      throw new HttpException(
+        'Only users with Premium account can get statistics. For more, buy a premium account.',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    const { region } = await this.carRepository.findOne({
+      where: { id: +carId },
+    });
+
+    const { averagePriceByRegion } = await this.carRepository
+      .createQueryBuilder('car')
+      .select('AVG(car.price)', 'averagePriceByRegion')
+      .where('car.region = :region', { region })
+      .andWhere('car.isActive = :isActive', { isActive: true })
+      .getRawOne();
+
+    const { averagePrice } = await this.carRepository
+      .createQueryBuilder('car')
+      .select('AVG(car.price)', 'averagePrice')
+      .where('car.isActive = :isActive', { isActive: true })
+      .getRawOne();
+
+    const counter = await this.counterRepository.findOne({
+      where: { car: { id: +carId } },
+    });
+    const ukraineAveragePrice = parseInt(averagePrice);
+    return { averagePriceByRegion, ukraineAveragePrice, counter };
   }
 
   async createPrice(
@@ -202,7 +274,7 @@ export class CarsService {
     return { price, currencyBuyRate };
   }
 
-  async findByIdOrThrow(id: string) {
+  async findByIdOrThrow(id: string): Promise<Car> {
     try {
       const car = await this.carRepository.findOne({ where: { id: +id } });
       if (!car) {

@@ -49,4 +49,9 @@ export class UpdateCarDto {
   @IsString()
   @IsOptional()
   pathToPhoto: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  region: string;
 }
