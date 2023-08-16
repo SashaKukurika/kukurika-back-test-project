@@ -1,5 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
+import { UserRole } from '../../auth/enums/user-role.enum';
 import { Car } from '../../cars/entities/car.entity';
 
 @Entity()
@@ -26,8 +27,8 @@ export class User {
   @Column({ type: 'varchar', nullable: false })
   password: string;
 
-  @Column({ type: 'varchar', default: 'user' })
-  role: string;
+  @Column({ type: 'varchar', default: UserRole.USER })
+  role: UserRole;
 
   @OneToMany(() => Car, (car) => car.user)
   cars: Car[];

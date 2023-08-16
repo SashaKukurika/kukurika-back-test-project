@@ -5,13 +5,13 @@ import { paginateRawAndEntities } from 'nestjs-typeorm-paginate';
 import { Repository } from 'typeorm';
 
 import { AuthService } from '../auth/auth.service';
+import { UserRole } from '../auth/enums/user-role.enum';
 import { PaginatedDto } from '../common/pagination/response';
 import { CarBrandOrModelDto } from '../common/query/car-brand-model.dto';
 import { PublicUserInfoDto } from '../common/query/user.query.dto';
 import { MailSubjectEnum } from '../core/mail/enums/mail-subject.enum';
 import { MailTemplateEnum } from '../core/mail/enums/mail-template.enum';
 import { MailService } from '../core/mail/mail.service';
-import { PasswordService } from '../password/password.service';
 import { UserCreateDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -23,60 +23,62 @@ export class UsersService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly authService: AuthService,
-    private readonly passwordService: PasswordService,
     private readonly mailService: MailService,
     private readonly configService: ConfigService,
   ) {}
-  async login(data: UserCreateDto): Promise<{ token: string }> {
-    const findUser = await this.userRepository.findOne({
-      where: {
-        email: data.email,
-      },
-    });
-    if (!findUser) {
-      throw new HttpException(
-        'Incorrect email or password',
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-    const isMatched = await this.passwordService.compare(
-      data.password,
-      findUser.password,
-    );
+  //TODO add some from here to auth
+  // async login(data: UserCreateDto): Promise<{ token: string }> {
+  //   const findUser = await this.userRepository.findOne({
+  //     where: {
+  //       email: data.email,
+  //     },
+  //   });
+  //   if (!findUser) {
+  //     throw new HttpException(
+  //       'Incorrect email or password',
+  //       HttpStatus.UNAUTHORIZED,
+  //     );
+  //   }
+  //   const isMatched = await this.passwordService.compare(
+  //     data.password,
+  //     findUser.password,
+  //   );
+  //
+  //   if (!isMatched) {
+  //     throw new HttpException(
+  //       'Incorrect email or password',
+  //       HttpStatus.UNAUTHORIZED,
+  //     );
+  //   }
+  //
+  //   const token = await this.signIn(findUser);
+  //
+  //   return { token };
+  // }
 
-    if (!isMatched) {
-      throw new HttpException(
-        'Incorrect email or password',
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-
-    const token = await this.signIn(findUser);
-
-    return { token };
-  }
-  async register(data: UserCreateDto): Promise<{ token: string }> {
-    const findUser = await this.userRepository.findOne({
-      where: {
-        email: data.email,
-      },
-    });
-    if (findUser) {
-      throw new HttpException(
-        'User with this email already exist',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    data.password = await this.passwordService.getHash(data.password);
-    const newUser = this.userRepository.create(data);
-
-    await this.userRepository.save(newUser);
-
-    const token = await this.signIn(newUser);
-
-    return { token };
-  }
+  //TODO add some from here to auth
+  // async register(data: UserCreateDto): Promise<{ token: string }> {
+  //   const findUser = await this.userRepository.findOne({
+  //     where: {
+  //       email: data.email,
+  //     },
+  //   });
+  //   if (findUser) {
+  //     throw new HttpException(
+  //       'User with this email already exist',
+  //       HttpStatus.BAD_REQUEST,
+  //     );
+  //   }
+  //
+  //   data.password = await this.passwordService.getHash(data.password);
+  //   const newUser = this.userRepository.create(data);
+  //
+  //   await this.userRepository.save(newUser);
+  //
+  //   const token = await this.signIn(newUser);
+  //
+  //   return { token };
+  // }
 
   async findAll(
     query: PublicUserInfoDto,
@@ -169,16 +171,12 @@ export class UsersService {
   }
 
   async createManager(data: UserCreateDto): Promise<User> {
-    const user = await this.userRepository.create({ ...data, role: 'manager' });
+    const user = await this.userRepository.create({
+      ...data,
+      role: UserRole.MANAGER,
+    });
     await this.userRepository.save(user);
     return user;
-  }
-
-  async signIn(user) {
-    return await this.authService.signIn({
-      id: user.id.toString(),
-      role: user.role,
-    });
   }
 
   async findByIdOrThrow(value: string) {
