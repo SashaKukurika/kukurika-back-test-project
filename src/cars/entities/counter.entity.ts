@@ -25,6 +25,9 @@ export class Counter {
   @Column({ type: 'int', nullable: false, default: 0 })
   views: number;
 
+  @Column({ type: 'date', nullable: false, default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: string;
+
   @OneToOne(() => Car)
   @JoinColumn()
   car: Car;

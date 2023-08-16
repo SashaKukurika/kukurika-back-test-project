@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AppController } from './app.controller';
@@ -19,6 +20,7 @@ import { UsersModule } from './users/users.module';
       isGlobal: true,
     }),
     TypeOrmModule.forRootAsync(TypeOrmConfiguration.config),
+    ScheduleModule.forRoot(),
     UsersModule,
     AuthModule,
     PasswordModule,
