@@ -1,9 +1,14 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Express } from 'express';
 import { Repository } from 'typeorm';
 
+import { PublicCarInfoDto } from '../common/query/car.query.dto';
 import { CurrencyService } from '../core/currency/currency.service';
+import { MailTemplateEnum } from '../core/mail/enums/mail-template.enum';
+import { MailService } from '../core/mail/mail.service';
+import { ResponseService, StaticMapper } from '../core/mappers/mapper.service';
 import { ItemTypeEnum } from '../s3/enums/item-type.enum';
 import { S3Service } from '../s3/s3.service';
 import { User } from '../users/entities/user.entity';
@@ -12,15 +17,11 @@ import { CreateCarDto } from './dto/create-car.dto';
 import { UpdateCarDto } from './dto/update-car.dto';
 import { Brand } from './entities/brand.entity';
 import { Car } from './entities/car.entity';
+import { Counter } from './entities/counter.entity';
 import { Model } from './entities/model.entity';
-import { CarBrandEnum } from './enums/car-brand.enum';
 import { CurrencyEnum } from './enums/currency.enum';
 import BadWordsFilter = require('bad-words');
-import { ConfigService } from '@nestjs/config';
-
-import { MailTemplateEnum } from '../core/mail/enums/mail-template.enum';
-import { MailService } from '../core/mail/mail.service';
-import { Counter } from './entities/counter.entity';
+import { PaginatedDto } from '../common/pagination/response';
 
 @Injectable()
 export class CarsService {
@@ -40,9 +41,10 @@ export class CarsService {
     private readonly currencyService: CurrencyService,
     private readonly mailService: MailService,
     private readonly configService: ConfigService,
+    private readonly responseService: ResponseService,
   ) {}
 
-  async findAllBrands() {
+  async findAllBrands(): Promise<Brand[]> {
     try {
       return await this.brandRepository.find({ select: ['name'] });
     } catch (e) {
@@ -50,7 +52,7 @@ export class CarsService {
     }
   }
 
-  async create(userId: string, createCarDto: CreateCarDto) {
+  async create(userId: string, createCarDto: CreateCarDto): Promise<void> {
     const user = await this.userRepository.findOne({
       where: { id: +userId },
       relations: ['cars'],
@@ -100,10 +102,10 @@ export class CarsService {
     await this.counterRepository.save(newCounter);
   }
 
-  async findAllModelsOfTheBrand(data: CarBrandDto): Promise<Model[]> {
+  async findAllModelsOfTheBrand(carBrandDto: CarBrandDto): Promise<Model[]> {
     const brandId = await this.brandRepository.findOne({
       select: ['id'],
-      where: { name: data.brand },
+      where: { name: carBrandDto.brand },
     });
     return await this.modelRepository.find({
       select: ['name'],
@@ -111,27 +113,21 @@ export class CarsService {
     });
   }
 
-  async findAllUniqueModelByBrand(brand: CarBrandEnum) {
-    return await this.carRepository
-      .createQueryBuilder('car')
-      .select('DISTINCT car.model', 'model')
-      .where('car.brand = :brand', { brand })
-      .getRawMany();
-  }
+  async update(
+    id: string,
+    updateCarDto: UpdateCarDto,
+    userId: string,
+  ): Promise<void> {
+    const car = await this.findByIdOrThrow(id);
+    await this.checkCarOwnerOrThrow(id, userId);
 
-  async findOne() {
-    return this.currencyService.getCurrencyRates();
-  }
-
-  async update(carId: string, updateCarDto: UpdateCarDto) {
-    const car = await this.findByIdOrThrow(carId);
     if (car.profanityCount === 2) {
       const {
         user: { email },
       } = await this.carRepository
         .createQueryBuilder('car')
         .leftJoinAndSelect('car.user', 'user')
-        .where('car.id = :carId', { carId })
+        .where('car.id = :id', { id })
         .getOne();
 
       await this.mailService.send(
@@ -141,7 +137,7 @@ export class CarsService {
         {
           ...updateCarDto,
           apiUrl: this.configService.get<string>('AWS_S3_URL'),
-          id: carId,
+          id: id,
           userCurrency: car.userCurrency,
           currencyRate: car.currencyRate,
           price: car.price,
@@ -156,7 +152,7 @@ export class CarsService {
       );
     }
     if (this.filter.isProfane(updateCarDto.advertisementText)) {
-      await this.carRepository.increment({ id: +carId }, 'profanityCount', 1);
+      await this.carRepository.increment({ id: +id }, 'profanityCount', 1);
       throw new HttpException(
         `The ad has not passed moderation, there are ${
           2 - car.profanityCount
@@ -166,30 +162,80 @@ export class CarsService {
     }
 
     await this.carRepository.update(
-      { id: +carId },
+      { id: +id },
       { ...updateCarDto, isActive: true },
     );
   }
 
-  async removePhoto(id: string): Promise<void> {
-    //TODO add delete from DB
+  async removePhoto(id: string, userId: string): Promise<void> {
+    await this.checkCarOwnerOrThrow(id, userId);
+
     const { pathToPhoto } = await this.carRepository.findOne({
       where: { id: +id },
     });
-    await this.s3Service.deleteFile(pathToPhoto);
+    await Promise.all([
+      this.s3Service.deleteFile(pathToPhoto),
+      this.carRepository
+        .createQueryBuilder()
+        .update(Car)
+        .set({ pathToPhoto: null })
+        .where('id = :id', { id })
+        .execute(),
+    ]);
   }
 
-  async addPhoto(file: Express.Multer.File, id: string) {
+  async addPhoto(file: Express.Multer.File, id: string): Promise<void> {
     const pathToPhoto = await this.s3Service.uploadFile(
       file,
       ItemTypeEnum.Car,
       id,
     );
-    return this.carRepository.update(id, { pathToPhoto });
+    await this.carRepository.update(id, { pathToPhoto });
   }
 
-  async getCarById(carId: string) {
-    const car = await this.findByIdOrThrow(carId);
+  async findAllCarsWithPagination(
+    query: PublicCarInfoDto,
+  ): Promise<PaginatedDto<Car>> {
+    query.order = query.order || 'ASC';
+
+    const page = +query.page || 1;
+    const limit = +query.limit || 5;
+    const offset = (page - 1) * limit;
+
+    const queryBuilder = this.carRepository
+      .createQueryBuilder('car')
+      .leftJoinAndSelect('car.user', 'user');
+
+    switch (query.sort) {
+      case 'year':
+        queryBuilder.orderBy('car.year', query.order);
+        break;
+      case 'price':
+        queryBuilder.orderBy('car.price', query.order);
+        break;
+      case 'region':
+        queryBuilder.orderBy('car.region', query.order);
+        break;
+      default:
+        queryBuilder.orderBy('car.id', query.order);
+    }
+
+    queryBuilder.limit(limit);
+    queryBuilder.offset(offset);
+    const [entities, count] = await queryBuilder.getManyAndCount();
+    const map = entities.map((car) =>
+      this.responseService.createCarResponse(car),
+    );
+    return {
+      page,
+      pages: Math.ceil(count / limit),
+      countItem: count,
+      entities: map,
+    };
+  }
+
+  async getCarById(id: string): Promise<Car> {
+    const car = await this.findByIdOrThrow(id);
     if (!car.isActive) {
       throw new HttpException('This ad is not active.', HttpStatus.BAD_REQUEST);
     }
@@ -202,24 +248,22 @@ export class CarsService {
         viewsPerWeek: () => 'viewsPerWeek + 1',
         viewsPerMonth: () => 'viewsPerMonth + 1',
       })
-      .where('car.id = :carId', { carId })
+      .where('car.id = :id', { id })
       .execute();
 
     const carWithUser = await this.carRepository.findOne({
-      where: { id: +carId },
+      where: { id: +id },
       relations: ['user'],
     });
-    const {
-      user: { email, phone },
-    } = carWithUser;
 
-    return { car, email, phone };
+    return this.responseService.createCarResponse(carWithUser);
   }
 
-  async getCarStatistics(carId: string) {
+  async getCarStatistics(carId: string, userId: string): Promise<StaticMapper> {
     const user = await this.userRepository.findOne({
       where: { cars: { id: +carId } },
     });
+    await this.checkCarOwnerOrThrow(carId, userId);
 
     if (!user.premiumAccount) {
       throw new HttpException(
@@ -248,8 +292,12 @@ export class CarsService {
     const counter = await this.counterRepository.findOne({
       where: { car: { id: +carId } },
     });
-    const ukraineAveragePrice = parseInt(averagePrice);
-    return { averagePriceByRegion, ukraineAveragePrice, counter };
+
+    return this.responseService.createStatisticResponse(
+      averagePriceByRegion,
+      averagePrice,
+      counter,
+    );
   }
 
   async createPrice(
@@ -289,7 +337,20 @@ export class CarsService {
     }
   }
 
-  async fillDataBaseBrandsAndModels() {
+  async checkCarOwnerOrThrow(carId: string, userId: string) {
+    const carsByUserId = await this.carRepository.find({
+      where: { user: { id: +userId } },
+    });
+
+    const includes = carsByUserId
+      .map((car) => car.id === +carId)
+      .includes(true);
+    if (!includes) {
+      throw new HttpException('It is not your car', HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async fillDataBaseBrandsAndModels(): Promise<void> {
     const brandsArr = [
       'Toyota',
       'Audi',

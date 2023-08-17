@@ -10,7 +10,7 @@ import { Configs } from './configs/constants';
 import { CronService } from './cron/cron.service';
 import { CurrencyService } from './currency/currency.service';
 import { MailService } from './mail/mail.service';
-import { UserResponseService } from './mappers/user-mapper.service';
+import { ResponseService } from './mappers/mapper.service';
 
 @Module({
   imports: [
@@ -29,7 +29,7 @@ import { UserResponseService } from './mappers/user-mapper.service';
       },
     }),
   ],
-  providers: [MailService, CurrencyService, CronService, UserResponseService],
-  exports: [MailService, CurrencyService, CronService, UserResponseService],
+  providers: [MailService, CurrencyService, CronService, ResponseService],
+  exports: [MailService, CurrencyService, CronService, ResponseService],
 })
 export class CoreModule {}

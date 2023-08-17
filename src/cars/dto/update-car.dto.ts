@@ -10,8 +10,8 @@ import {
 } from 'class-validator';
 
 import { CurrencyEnum } from '../enums/currency.enum';
+import { RegionEnum } from '../enums/region.enum';
 
-// first validation before DB - must have
 export class UpdateCarDto {
   @ApiProperty()
   @IsString()
@@ -51,7 +51,7 @@ export class UpdateCarDto {
   pathToPhoto: string;
 
   @ApiProperty()
-  @IsString()
-  @IsOptional()
+  @IsEnum(RegionEnum)
+  @IsNotEmpty()
   region: string;
 }

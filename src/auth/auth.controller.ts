@@ -30,5 +30,4 @@ export class AuthController {
   ): Promise<JwtTokensInterface> {
     return await this.authService.refreshTokens(refreshToken);
   }
-  // TODO forgot logout
 }

@@ -21,7 +21,7 @@ import {
 } from '../common/pagination/response';
 import { CarBrandOrModelDto } from '../common/query/car-brand-model.dto';
 import { PublicUserInfoDto } from '../common/query/user.query.dto';
-import { UserMapper } from '../core/mappers/user-mapper.service';
+import { UserMapper } from '../core/mappers/mapper.service';
 import { ManagerCreateDto } from './dto/create-manager.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -72,22 +72,24 @@ export class UsersController {
   @Role(UserRole.ADMIN, UserRole.MANAGER)
   @UseGuards(AccessTokenGuard, RoleGuard)
   @Delete(':id')
-  async delete(@Param('id') id: string) {
+  async delete(@Param('id') id: string): Promise<void> {
     return this.usersService.delete(id);
+  }
+
+  @Role(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
+  @UseGuards(AccessTokenGuard, RoleGuard)
+  @Post(':id/brandOrModel')
+  async addNewBrandOrModel(
+    @Param('id') id: string,
+    @Query() query: CarBrandOrModelDto,
+  ) {
+    return await this.usersService.addNewBrandOrModel(id, query);
   }
 
   @Role(UserRole.ADMIN)
   @UseGuards(AccessTokenGuard, RoleGuard)
   @Post('/manager')
-  async createManager(@Body() data: ManagerCreateDto) {
-    return this.usersService.createManager(data);
-  }
-
-  @Post(':userId/brandOrModel')
-  async addNewBrandOrModel(
-    @Param('userId') userId: string,
-    @Query() query: CarBrandOrModelDto,
-  ) {
-    return await this.usersService.addNewBrandOrModel(userId, query);
+  async createManager(@Body() managerCreateDto: ManagerCreateDto) {
+    return this.usersService.createManager(managerCreateDto);
   }
 }
