@@ -20,6 +20,6 @@ export class UserCreateDto {
   @IsEmail()
   email: string;
 
-  // @ApiProperty({ enum: RoleEnum, default: [], isArray: true })
-  // roles: RoleEnum[] = []
+  // @ApiProperty({ enum: UserRole })
+  // roles: UserRole;
 }

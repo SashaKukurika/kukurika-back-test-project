@@ -26,59 +26,6 @@ export class UsersService {
     private readonly mailService: MailService,
     private readonly configService: ConfigService,
   ) {}
-  //TODO add some from here to auth
-  // async login(data: UserCreateDto): Promise<{ token: string }> {
-  //   const findUser = await this.userRepository.findOne({
-  //     where: {
-  //       email: data.email,
-  //     },
-  //   });
-  //   if (!findUser) {
-  //     throw new HttpException(
-  //       'Incorrect email or password',
-  //       HttpStatus.UNAUTHORIZED,
-  //     );
-  //   }
-  //   const isMatched = await this.passwordService.compare(
-  //     data.password,
-  //     findUser.password,
-  //   );
-  //
-  //   if (!isMatched) {
-  //     throw new HttpException(
-  //       'Incorrect email or password',
-  //       HttpStatus.UNAUTHORIZED,
-  //     );
-  //   }
-  //
-  //   const token = await this.signIn(findUser);
-  //
-  //   return { token };
-  // }
-
-  //TODO add some from here to auth
-  // async register(data: UserCreateDto): Promise<{ token: string }> {
-  //   const findUser = await this.userRepository.findOne({
-  //     where: {
-  //       email: data.email,
-  //     },
-  //   });
-  //   if (findUser) {
-  //     throw new HttpException(
-  //       'User with this email already exist',
-  //       HttpStatus.BAD_REQUEST,
-  //     );
-  //   }
-  //
-  //   data.password = await this.passwordService.getHash(data.password);
-  //   const newUser = this.userRepository.create(data);
-  //
-  //   await this.userRepository.save(newUser);
-  //
-  //   const token = await this.signIn(newUser);
-  //
-  //   return { token };
-  // }
 
   async findAll(
     query: PublicUserInfoDto,

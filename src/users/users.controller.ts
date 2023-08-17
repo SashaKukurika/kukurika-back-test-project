@@ -9,7 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiExtraModels, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiExtraModels, ApiParam, ApiTags } from '@nestjs/swagger';
 
 import { Role } from '../auth/decorators/role';
 import { UserRole } from '../auth/enums/user-role.enum';
@@ -23,6 +23,7 @@ import { CarBrandOrModelDto } from '../common/query/car-brand-model.dto';
 import { PublicUserInfoDto } from '../common/query/user.query.dto';
 import { UserCreateDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { User } from './entities/user.entity';
 import { PublicUserData } from './interfaces/user.interface';
 import { UsersService } from './users.service';
 
@@ -41,21 +42,23 @@ export class UsersController {
     return this.usersService.findAll(query);
   }
 
-  // name in Get and Param must be the same
+  @ApiParam({ name: 'id', description: 'The ID of the user', example: 3 })
   @Role(UserRole.ADMIN)
+  @Role(UserRole.USER)
   @UseGuards(AccessTokenGuard, RoleGuard)
   @Get(':userId')
-  // @Roles('admin')
-  // @UseGuards(RolesGuard)
-  async findOne(@Param('userId') id: string) {
+  async findOne(@Param('userId') id: string): Promise<User> {
     return this.usersService.findByIdOrThrow(id);
   }
 
+  @ApiParam({ name: 'id', description: 'The ID of the user', example: 3 })
+  @ApiBody({ type: [UpdateUserDto] })
   @Patch(':userId')
   async updateUserInfo(
     @Param('userId') userId: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
+    // TODO what come back
     return this.usersService.updateUserInfo(userId, updateUserDto);
   }
 
