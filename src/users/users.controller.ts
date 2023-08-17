@@ -9,7 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBody, ApiExtraModels, ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiExtraModels, ApiTags } from '@nestjs/swagger';
 
 import { Role } from '../auth/decorators/role';
 import { UserRole } from '../auth/enums/user-role.enum';
@@ -21,7 +21,8 @@ import {
 } from '../common/pagination/response';
 import { CarBrandOrModelDto } from '../common/query/car-brand-model.dto';
 import { PublicUserInfoDto } from '../common/query/user.query.dto';
-import { UserCreateDto } from './dto/create-user.dto';
+import { UserMapper } from '../core/mappers/user-mapper.service';
+import { ManagerCreateDto } from './dto/create-manager.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { PublicUserData } from './interfaces/user.interface';
@@ -36,39 +37,49 @@ export class UsersController {
   // in constructor write all service that we will use
   constructor(private readonly usersService: UsersService) {}
 
-  @ApiPaginatedResponse('entities', PublicUserData)
+  @Role(UserRole.ADMIN, UserRole.MANAGER)
+  @UseGuards(AccessTokenGuard, RoleGuard)
   @Get()
-  async findAll(@Query() query: PublicUserInfoDto) {
-    return this.usersService.findAll(query);
+  async findAll(): Promise<User[]> {
+    return this.usersService.findAll();
+  }
+  // TODO norm pagination
+  @ApiPaginatedResponse('entities', PublicUserData)
+  @Role(UserRole.ADMIN, UserRole.MANAGER)
+  @UseGuards(AccessTokenGuard, RoleGuard)
+  @Get('/pagination')
+  async findAllWhitPagination(@Query() query: PublicUserInfoDto) {
+    return this.usersService.findAllWhitPagination(query);
   }
 
-  @ApiParam({ name: 'id', description: 'The ID of the user', example: 3 })
-  @Role(UserRole.ADMIN)
-  @Role(UserRole.USER)
+  @Role(UserRole.ADMIN, UserRole.MANAGER)
   @UseGuards(AccessTokenGuard, RoleGuard)
-  @Get(':userId')
-  async findOne(@Param('userId') id: string): Promise<User> {
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<User> {
     return this.usersService.findByIdOrThrow(id);
   }
 
-  @ApiParam({ name: 'id', description: 'The ID of the user', example: 3 })
-  @ApiBody({ type: [UpdateUserDto] })
-  @Patch(':userId')
+  @Role(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
+  @UseGuards(AccessTokenGuard, RoleGuard)
+  @Patch(':id')
   async updateUserInfo(
-    @Param('userId') userId: string,
+    @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
-  ) {
-    // TODO what come back
-    return this.usersService.updateUserInfo(userId, updateUserDto);
+  ): Promise<UserMapper> {
+    return this.usersService.updateUserInfo(id, updateUserDto);
   }
 
-  @Delete(':userId')
-  async delete(@Param('userId') userId: string) {
-    return this.usersService.delete(userId);
+  @Role(UserRole.ADMIN, UserRole.MANAGER)
+  @UseGuards(AccessTokenGuard, RoleGuard)
+  @Delete(':id')
+  async delete(@Param('id') id: string) {
+    return this.usersService.delete(id);
   }
 
-  @Post('manager')
-  async createManager(@Body() data: UserCreateDto) {
+  @Role(UserRole.ADMIN)
+  @UseGuards(AccessTokenGuard, RoleGuard)
+  @Post('/manager')
+  async createManager(@Body() data: ManagerCreateDto) {
     return this.usersService.createManager(data);
   }
 

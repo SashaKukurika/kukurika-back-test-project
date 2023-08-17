@@ -6,8 +6,7 @@ import {
   IsStrongPassword,
 } from 'class-validator';
 
-// first validation before DB - must have
-export class UserCreateDto {
+export class ManagerCreateDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
@@ -19,7 +18,4 @@ export class UserCreateDto {
   @IsNotEmpty()
   @IsEmail()
   email: string;
-
-  // @ApiProperty({ enum: UserRole })
-  // roles: UserRole;
 }

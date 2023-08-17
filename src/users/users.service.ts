@@ -12,7 +12,11 @@ import { PublicUserInfoDto } from '../common/query/user.query.dto';
 import { MailSubjectEnum } from '../core/mail/enums/mail-subject.enum';
 import { MailTemplateEnum } from '../core/mail/enums/mail-template.enum';
 import { MailService } from '../core/mail/mail.service';
-import { UserCreateDto } from './dto/create-user.dto';
+import {
+  UserMapper,
+  UserResponseService,
+} from '../core/mappers/user-mapper.service';
+import { ManagerCreateDto } from './dto/create-manager.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { PublicUserData } from './interfaces/user.interface';
@@ -25,9 +29,13 @@ export class UsersService {
     private readonly authService: AuthService,
     private readonly mailService: MailService,
     private readonly configService: ConfigService,
+    private readonly userResponseService: UserResponseService,
   ) {}
 
-  async findAll(
+  async findAll(): Promise<User[]> {
+    return await this.userRepository.find({});
+  }
+  async findAllWhitPagination(
     query: PublicUserInfoDto,
   ): Promise<PaginatedDto<PublicUserData>> {
     query.sort = query.sort || 'id';
@@ -62,39 +70,43 @@ export class UsersService {
       entities: rawResults as any as [PublicUserData],
     };
   }
+  async findByIdOrThrow(id: string): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { id: +id } });
+    if (!user) {
+      throw new HttpException(
+        `User with id ${id} not exist`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return user;
+  }
 
-  // async findOne(userId: string): Promise<User> {
-  //   return await this.userRepository.findOne({
-  //     where: {
-  //       id: +userId,
-  //     },
-  //   });
-  // }
-
-  async updateUserInfo(userId: string, updateUserDto: UpdateUserDto) {
+  async updateUserInfo(
+    id: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UserMapper> {
+    await this.findByIdOrThrow(id);
     try {
-      await this.findByIdOrThrow(userId);
-
-      const { raw } = await this.userRepository
+      const {
+        raw: [updatedUser],
+      } = await this.userRepository
         .createQueryBuilder()
         .update(User)
         .set(updateUserDto)
-        .where('id = :id', { id: userId })
+        .where('id = :id', { id: +id })
         .returning('*') // Повернення оновлених даних
         .execute();
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...result } = raw[0];
-      return result;
+
+      return this.userResponseService.create(updatedUser);
     } catch (e) {
       throw new HttpException(`${e}`, HttpStatus.BAD_REQUEST);
     }
   }
 
-  async delete(userId: string): Promise<void> {
+  async delete(id: string): Promise<void> {
+    await this.findByIdOrThrow(id);
     try {
-      await this.findByIdOrThrow(userId);
-
-      await this.userRepository.delete(userId);
+      await this.userRepository.delete(+id);
     } catch (e) {
       throw new HttpException(`${e}`, HttpStatus.BAD_REQUEST);
     }
@@ -117,27 +129,12 @@ export class UsersService {
     );
   }
 
-  async createManager(data: UserCreateDto): Promise<User> {
+  async createManager(data: ManagerCreateDto): Promise<User> {
     const user = await this.userRepository.create({
       ...data,
       role: UserRole.MANAGER,
     });
     await this.userRepository.save(user);
     return user;
-  }
-
-  async findByIdOrThrow(value: string) {
-    try {
-      const user = await this.userRepository.findOne({ where: { id: +value } });
-      if (!user) {
-        throw new HttpException(
-          `User with id ${value} not exist`,
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-      return user;
-    } catch (e) {
-      throw new HttpException(`${e}`, HttpStatus.BAD_REQUEST);
-    }
   }
 }

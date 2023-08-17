@@ -9,16 +9,12 @@ import {
 } from 'class-validator';
 
 export class UpdateUserDto {
-  // ApiProperty for swagger
   @ApiProperty()
   @IsString()
   @IsOptional()
-  // put list of valid variants
-  // @IsEnum()
   name: string;
 
   @ApiProperty()
-  // IsNumber validate value must be a number
   @IsNumber()
   @IsOptional()
   age: number;
@@ -28,12 +24,9 @@ export class UpdateUserDto {
   @IsOptional()
   premiumAccount: boolean;
 
-  @ApiProperty()
+  @ApiProperty({ example: '+380632922314' })
   @IsString()
   @IsNotEmpty()
   @IsPhoneNumber()
   phone: string;
-
-  // @ApiProperty({ enum: RoleEnum, default: [], isArray: true })
-  // roles: RoleEnum[] = []
 }
