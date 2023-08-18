@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class PasswordService {
-  // TODO drop to env
-  private salt = 5;
+  constructor(private readonly configService: ConfigService) {}
   async getHash(password: string): Promise<string> {
-    return await bcrypt.hash(password, this.salt);
+    return await bcrypt.hash(
+      password,
+      +this.configService.get<string>('BCRYPT_SALT'),
+    );
   }
 
   async compare(password: string, hashedPassword: string): Promise<boolean> {

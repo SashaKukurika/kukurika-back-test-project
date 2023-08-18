@@ -19,6 +19,7 @@ import { Role } from '../auth/decorators/role';
 import { UserRole } from '../auth/enums/user-role.enum';
 import { AccessTokenGuard } from '../auth/guard/access-token.guard';
 import { RoleGuard } from '../auth/guard/authorization.guard';
+import { PaginatedDto } from '../common/pagination/response';
 import { PublicCarInfoDto } from '../common/query/car.query.dto';
 import { StaticMapper } from '../core/mappers/mapper.service';
 import { CarsService } from './cars.service';
@@ -74,7 +75,9 @@ export class CarsController {
   }
 
   @Get()
-  async findAllCarsWithPagination(@Query() query: PublicCarInfoDto) {
+  async findAllCarsWithPagination(
+    @Query() query: PublicCarInfoDto,
+  ): Promise<PaginatedDto<Car>> {
     return await this.carsService.findAllCarsWithPagination(query);
   }
 

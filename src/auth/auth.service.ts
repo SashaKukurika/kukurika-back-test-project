@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { PasswordService } from '../password/password.service';
+import { PasswordService } from '../core/password/password.service';
 import { User } from '../users/entities/user.entity';
 import { LoginDto, RegisterDto } from './dto/register.dto';
 import { UserRole } from './enums/user-role.enum';

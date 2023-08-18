@@ -22,7 +22,9 @@ import {
 import { CarBrandOrModelDto } from '../common/query/car-brand-model.dto';
 import { PublicUserInfoDto } from '../common/query/user.query.dto';
 import { UserMapper } from '../core/mappers/mapper.service';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { ManagerCreateDto } from './dto/create-manager.dto';
+import { PaymentDataDto } from './dto/payment-data.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { PublicUserData } from './interfaces/user.interface';
@@ -43,12 +45,14 @@ export class UsersController {
   async findAll(): Promise<User[]> {
     return this.usersService.findAll();
   }
-  // TODO norm pagination
+
   @ApiPaginatedResponse('entities', PublicUserData)
   @Role(UserRole.ADMIN, UserRole.MANAGER)
   @UseGuards(AccessTokenGuard, RoleGuard)
   @Get('/pagination')
-  async findAllWhitPagination(@Query() query: PublicUserInfoDto) {
+  async findAllWhitPagination(
+    @Query() query: PublicUserInfoDto,
+  ): Promise<PaginatedDto<PublicUserData>> {
     return this.usersService.findAllWhitPagination(query);
   }
 
@@ -69,6 +73,16 @@ export class UsersController {
     return this.usersService.updateUserInfo(id, updateUserDto);
   }
 
+  @Role(UserRole.ADMIN, UserRole.USER)
+  @UseGuards(AccessTokenGuard, RoleGuard)
+  @Patch(':id/change-password')
+  async changePassword(
+    @Param('id') id: string,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ): Promise<void> {
+    return this.usersService.changePassword(id, changePasswordDto);
+  }
+
   @Role(UserRole.ADMIN, UserRole.MANAGER)
   @UseGuards(AccessTokenGuard, RoleGuard)
   @Delete(':id')
@@ -84,6 +98,21 @@ export class UsersController {
     @Query() query: CarBrandOrModelDto,
   ) {
     return await this.usersService.addNewBrandOrModel(id, query);
+  }
+
+  @Role(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
+  @UseGuards(AccessTokenGuard, RoleGuard)
+  @Post(':userId')
+  async createPayment(
+    @Param('userId') userId: string,
+    @Body() paymentData: PaymentDataDto,
+  ): Promise<{ success: boolean }> {
+    const paymentStatus = await this.usersService.createPayment(
+      paymentData,
+      userId,
+    );
+
+    return { success: paymentStatus };
   }
 
   @Role(UserRole.ADMIN)

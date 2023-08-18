@@ -9,6 +9,7 @@ import {
 import { User } from '../../users/entities/user.entity';
 import { Counter } from './counter.entity';
 
+//TODO check all entity for rule
 @Entity()
 export class Car {
   @PrimaryGeneratedColumn()

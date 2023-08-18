@@ -9,8 +9,6 @@ import { CurrencyService } from '../core/currency/currency.service';
 import { MailTemplateEnum } from '../core/mail/enums/mail-template.enum';
 import { MailService } from '../core/mail/mail.service';
 import { ResponseService, StaticMapper } from '../core/mappers/mapper.service';
-import { ItemTypeEnum } from '../s3/enums/item-type.enum';
-import { S3Service } from '../s3/s3.service';
 import { User } from '../users/entities/user.entity';
 import { CarBrandDto } from './dto/car-brand.dto';
 import { CreateCarDto } from './dto/create-car.dto';
@@ -22,6 +20,8 @@ import { Model } from './entities/model.entity';
 import { CurrencyEnum } from './enums/currency.enum';
 import BadWordsFilter = require('bad-words');
 import { PaginatedDto } from '../common/pagination/response';
+import { ItemTypeEnum } from '../core/s3/enums/item-type.enum';
+import { S3Service } from '../core/s3/s3.service';
 
 @Injectable()
 export class CarsService {

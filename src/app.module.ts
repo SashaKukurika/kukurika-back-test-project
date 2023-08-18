@@ -8,10 +8,8 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { CarsModule } from './cars/cars.module';
 import { TypeOrmConfiguration } from './config/database/type-orm-configuration';
-import { PasswordModule } from './password/password.module';
-import { PasswordService } from './password/password.service';
-import { PaymentModule } from './payment/payment.module';
-import { S3Module } from './s3/s3.module';
+import { CoreModule } from './core/core.module';
+import { PasswordService } from './core/password/password.service';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -23,10 +21,8 @@ import { UsersModule } from './users/users.module';
     ScheduleModule.forRoot(),
     UsersModule,
     AuthModule,
-    PasswordModule,
-    PaymentModule,
+    CoreModule,
     CarsModule,
-    S3Module,
   ],
   controllers: [AppController],
   providers: [AppService, PasswordService],

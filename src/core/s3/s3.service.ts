@@ -36,7 +36,7 @@ export class S3Service {
     file: Express.Multer.File,
     itemType: ItemTypeEnum,
     itemId: string,
-  ) {
+  ): Promise<string> {
     const filePath = this.buildPath(itemType, itemId, file.originalname);
 
     const input: PutObjectCommandInput = {

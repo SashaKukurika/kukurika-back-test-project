@@ -11,6 +11,8 @@ import { CronService } from './cron/cron.service';
 import { CurrencyService } from './currency/currency.service';
 import { MailService } from './mail/mail.service';
 import { ResponseService } from './mappers/mapper.service';
+import { PasswordService } from './password/password.service';
+import { S3Service } from './s3/s3.service';
 
 @Module({
   imports: [
@@ -29,7 +31,21 @@ import { ResponseService } from './mappers/mapper.service';
       },
     }),
   ],
-  providers: [MailService, CurrencyService, CronService, ResponseService],
-  exports: [MailService, CurrencyService, CronService, ResponseService],
+  providers: [
+    MailService,
+    CurrencyService,
+    CronService,
+    ResponseService,
+    S3Service,
+    PasswordService,
+  ],
+  exports: [
+    MailService,
+    CurrencyService,
+    CronService,
+    ResponseService,
+    S3Service,
+    PasswordService,
+  ],
 })
 export class CoreModule {}

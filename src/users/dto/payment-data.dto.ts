@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+
+import { CurrencyEnum } from '../../cars/enums/currency.enum';
 
 // first validation before DB - must have
 export class PaymentDataDto {
@@ -9,9 +11,8 @@ export class PaymentDataDto {
   amount: number;
 
   @ApiProperty()
-  @IsString()
+  @IsEnum(CurrencyEnum)
   @IsNotEmpty()
-  // TODO enum валюти
   currency: string;
 
   @ApiProperty()
