@@ -30,5 +30,5 @@ npm run start:dev
 
 http://localhost:3000/cars/fill/database  - to fill database with brands and model
 
-after all you can check my project, I hope you like it)
+after all you can check my project, I hope you like it.
 ````
