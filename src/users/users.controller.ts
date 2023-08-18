@@ -30,13 +30,10 @@ import { User } from './entities/user.entity';
 import { PublicUserData } from './interfaces/user.interface';
 import { UsersService } from './users.service';
 
-// @UseGuards(AuthGuard()) it will work for full controller
-// ApiTags for swagger to create entity for all users
 @ApiTags('Users')
 @ApiExtraModels(PublicUserData, PaginatedDto)
 @Controller('users')
 export class UsersController {
-  // in constructor write all service that we will use
   constructor(private readonly usersService: UsersService) {}
 
   @Role(UserRole.ADMIN, UserRole.MANAGER)
@@ -102,7 +99,7 @@ export class UsersController {
 
   @Role(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
   @UseGuards(AccessTokenGuard, RoleGuard)
-  @Post(':userId')
+  @Post(':userId/payment')
   async createPayment(
     @Param('userId') userId: string,
     @Body() paymentData: PaymentDataDto,
@@ -117,7 +114,7 @@ export class UsersController {
 
   @Role(UserRole.ADMIN)
   @UseGuards(AccessTokenGuard, RoleGuard)
-  @Post('/manager')
+  @Post('/manager/create')
   async createManager(@Body() managerCreateDto: ManagerCreateDto) {
     return this.usersService.createManager(managerCreateDto);
   }

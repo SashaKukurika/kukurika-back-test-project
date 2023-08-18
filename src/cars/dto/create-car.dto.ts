@@ -3,7 +3,6 @@ import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 
 import { UpdateCarDto } from './update-car.dto';
 
-// first validation before DB - must have
 export class CreateCarDto extends UpdateCarDto {
   @ApiProperty()
   @IsNumber()

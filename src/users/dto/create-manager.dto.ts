@@ -2,6 +2,8 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsNotEmpty,
+  IsOptional,
+  IsPhoneNumber,
   IsString,
   IsStrongPassword,
 } from 'class-validator';
@@ -18,4 +20,10 @@ export class ManagerCreateDto {
   @IsNotEmpty()
   @IsEmail()
   email: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  @IsPhoneNumber()
+  phone: string;
 }

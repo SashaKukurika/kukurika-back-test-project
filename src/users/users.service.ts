@@ -197,12 +197,26 @@ export class UsersService {
     }
   }
 
-  async createManager(managerCreateDto: ManagerCreateDto): Promise<User> {
-    const user = await this.userRepository.create({
+  async createManager(managerCreateDto: ManagerCreateDto): Promise<UserMapper> {
+    const user = await this.userRepository.findOne({
+      where: { email: managerCreateDto.email },
+    });
+    if (user) {
+      throw new HttpException(
+        'Manager with this email already exist',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const hashPassword = await this.passwordService.getHash(
+      managerCreateDto.password,
+    );
+    const manager = await this.userRepository.create({
       ...managerCreateDto,
+      password: hashPassword,
+      premiumAccount: true,
       role: UserRole.MANAGER,
     });
-    await this.userRepository.save(user);
-    return user;
+    await this.userRepository.save(manager);
+    return this.responseService.createUserResponse(manager);
   }
 }
