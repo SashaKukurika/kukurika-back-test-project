@@ -21,7 +21,7 @@ STRIPE_PUBLISHABLE_KEY
 
 fill in the other changes that are in .env like in .env.example
 
-npm instal
+npm install
 
 run your docker
 
