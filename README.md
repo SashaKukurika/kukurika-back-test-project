@@ -1,97 +1,32 @@
-## Pagination custom Decorator
+## Start Project
 
-якщо декоратор починається зі слова Api це для свагера
+````
+create S3bucket at aws to upload file, get thous credentials:
+AWS_ACCESS_KEY
+AWS_SECRET_KEY
+AWS_S3_REGION
+AWS_S3_NAME
+AWS_S3_ACL
+AWS_S3_URL
 
-## lib
-```bash
-npm i nestjs-typeorm-paginate
-```
-## Decorator
+https://www.brevo.com/ to get credentials, for email sending:
+BREVO_SMTP_SERVER
+BREVO_SMTP_PORT
+BREVO_SMTP_LOGIN
+BREVO_SMTP_PASSWORD
 
-```bash
-import {
-  registerDecorator,
-  ValidationArguments,
-  ValidationOptions,
-  ValidatorConstraint,
-  ValidatorConstraintInterface,
-} from 'class-validator';
+https://stripe.com/ to get credentials, for payment checking:
+STRIPE_SECRET_KEY
+STRIPE_PUBLISHABLE_KEY
 
-export function Match(property: string, validationOptions?: ValidationOptions) {
-  return (object: any, propertyName: string) => {
-    registerDecorator({
-      target: object.constructor,
-      propertyName,
-      options: validationOptions,
-      constraints: [property],
-      validator: MatchConstraint,
-    });
-  };
-}
+fill in the other changes that are in .env like in .env.example
 
-@ValidatorConstraint({ name: 'Match' })
-export class MatchConstraint implements ValidatorConstraintInterface {
-  validate(value: any, args: ValidationArguments) {
-    const [relatedPropertyName] = args.constraints;
-    const relatedValue = (args.object as any)[relatedPropertyName];
-    return value === relatedValue;
-  }
-}
-```
+run your docker
 
-## for custom response
+npm run start:db
+npm run start:dev
 
-```bash
-import { applyDecorators, Type } from '@nestjs/common';
-import { ApiOkResponse, ApiProperty, getSchemaPath } from '@nestjs/swagger';
+http://localhost:3000/cars/fill/database  - to fill database with brands and model
 
-export class PaginatedDto<TModel> {
-  @ApiProperty()
-  page: number;
-
-  @ApiProperty()
-  pages: number;
-
-  @ApiProperty()
-  countItem: number;
-
-  @ApiProperty()
-  entities: TModel[];
-}
-
-export const ApiPaginatedResponse = <TModel extends Type<any>>(
-  property: string,
-  model: TModel,
-) => {
-  return applyDecorators(
-    ApiOkResponse({
-      schema: {
-        properties: {
-          data: {
-            allOf: [
-              { $ref: getSchemaPath(PaginatedDto) },
-              {
-                properties: {
-                  [`${property}`]: {
-                    type: 'array',
-                    items: { $ref: getSchemaPath(model) },
-                  },
-                },
-              },
-            ],
-          },
-        },
-      },
-    }),
-  );
-};
-
-```
-## Command for module
-
-```bash
-# create all for resource
-# don't forget to add async before all methods
-# and constructor at service
-$ nest g resource users --no-spec
-```
+after all you can check my project, I hope you like it)
+````
